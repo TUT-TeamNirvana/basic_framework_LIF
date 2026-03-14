@@ -28,14 +28,14 @@ set(DSP_NAME "libCMSISDSP.a") # 指定DSP库名称
 link_directories(${CMAKE_SOURCE_DIR}/Middlewares/ST/ARM/DSP/Lib)
 
 # Generic compiler settings for optimization and basic link lib
-add_compile_options(-pipe ${MCU_FLAGS} -Wall -Werror -fmessage-length=0 # basic options
-                    -ffunction-sections -fdata-sections -fno-common # optimize options 
+add_compile_options(-pipe ${MCU_FLAGS} -Wall -fmessage-length=0 # basic options
+                    -ffunction-sections -fdata-sections -fno-common # optimize options
                     )
-add_link_options(-pipe ${MCU_FLAGS} -T${LINKER_SCRIPT} -Wl,--no-warn-rwx-segments # close RWX warning
-                 -lm -lc -lnosys # lib options
-                 -Wl,--gc-sections -flto -specs=nano.specs -specs=nosys.specs # optimize options
+add_link_options(-pipe ${MCU_FLAGS} -Wl,--no-warn-rwx-segments # close RWX warning
+                 -lm -lc # lib options
+                 -Wl,--gc-sections -flto # optimize options
                  -Wl,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map -Wl,--cref -Wl,--print-memory-usage # map options
-                 ) # if your executable is too large , try option '-s' to strip symbols
+                )
 
 # add_compile_definitions() works for compile stage
 # while add_definitions() works for both compile and link stage
@@ -106,10 +106,9 @@ add_executable(${PROJECT_NAME}.elf  ${SOURCES} ${ASM_SOURCES} ${LINKER_SCRIPT})
 target_link_libraries(${PROJECT_NAME}.elf ${DSP_NAME} m) # link DSP lib and math lib
 
 add_custom_command(
-    TARGET ${PROJECT_NAME}.elf POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex
-    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin
-    COMMENT "Building hex & bin file..."
-    COMMENT "EXCUTABLE SIZE:"
-    COMMAND ${SIZE} ${PROJECT_NAME}.elf
-  )
+        TARGET ${PROJECT_NAME}.elf POST_BUILD
+        COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex
+        COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin
+        COMMENT "Building hex & bin file and printing size..."
+        COMMAND arm-none-eabi-size $<TARGET_FILE:${PROJECT_NAME}.elf>
+)

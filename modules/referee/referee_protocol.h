@@ -104,7 +104,7 @@
      //LEN_aerial_robot_energy = 2,				  0x0205 2025.3.14删除，2024.12.25 V1.7.0 删除该命令码
      LEN_robot_hurt = 1,							 // 0x0206
      LEN_shoot_data = 7,							 // 0x0207
-     LEN_shoot_num = 6,							 // 0x0208
+     LEN_shoot_num = 8,							 // 0x0208
  
  } JudgeDataLength_e;
  
@@ -150,7 +150,7 @@
  /* ID: 0x0101  Byte:  4    场地事件数据 */
  typedef struct
  {
-     uint32_t event_type;
+     uint32_t event_data;
  } ext_event_data_t;
  
  /* ID: 0x0102  Byte:  3    场地补给站动作标识数据 2025.3.14删除，2024.12.25 V1.7.0 删除该命令码*/
@@ -249,6 +249,7 @@
   uint16_t projectile_allowance_17mm;
   uint16_t projectile_allowance_42mm;
   uint16_t remaining_gold_coin;
+  uint16_t projectile_allowance_fortress;
  }ext_shoot_num_and_gold_coin_t;
  
  
