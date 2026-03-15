@@ -12,8 +12,14 @@
 static RC_ctrl_t rc_ctrl[2];     //[0]:当前数据TEMP,[1]:上一次的数据LAST.用于按键持续按下和切换的判断
 static uint8_t rc_init_flag = 0; // 遥控器初始化标志位
 
+// 图传链路数据，用于记录模拟DT7的右侧拨杆状态 (默认处于中档: 底盘跟随模式)
+static uint8_t virtual_switch_right = RC_SW_MID;
+static uint8_t last_pause_btn = 0;
+static uint8_t last_custom_l = 0;
+
 // 遥控器拥有的串口实例,因为遥控器是单例,所以这里只有一个,就不封装了
 static USARTInstance *rc_usart_instance;
+static USARTInstance *vtx_usart_instance; // 新增图传的串口实例
 static DaemonInstance *rc_daemon_instance;
 
 /**
@@ -133,4 +139,107 @@ uint8_t RemoteControlIsOnline()
     if (rc_init_flag)
         return DaemonIsOnline(rc_daemon_instance);
     return 0;
+}
+
+/**
+ * @brief 新图传接收端(VT13+VT3) 21字节协议解析函数
+ */
+static void vtx_to_rc(const uint8_t *vtx_buf)
+{
+    // 判断固定帧头 0xA9 和 0x53
+    if (vtx_buf[0] != 0xA9 || vtx_buf[1] != 0x53) return;
+
+    // 1. 摇杆和拨轮解算
+    rc_ctrl[TEMP].rc.rocker_r_ = ((vtx_buf[2] | (vtx_buf[3] << 8)) & 0x07ff) - RC_CH_VALUE_OFFSET;
+    rc_ctrl[TEMP].rc.rocker_r1 = (((vtx_buf[3] >> 3) | (vtx_buf[4] << 5)) & 0x07ff) - RC_CH_VALUE_OFFSET;
+    rc_ctrl[TEMP].rc.rocker_l1 = (((vtx_buf[4] >> 6) | (vtx_buf[5] << 2) | (vtx_buf[6] << 10)) & 0x07ff) - RC_CH_VALUE_OFFSET;
+    rc_ctrl[TEMP].rc.rocker_l_ = (((vtx_buf[6] >> 1) | (vtx_buf[7] << 7)) & 0x07ff) - RC_CH_VALUE_OFFSET;
+    rc_ctrl[TEMP].rc.dial = (((vtx_buf[8] >> 1) | (vtx_buf[9] << 7)) & 0x07FF) - RC_CH_VALUE_OFFSET;
+    RectifyRCjoystick();
+
+    // 2. 挡位切换开关 -> 直接映射到左侧拨杆 (决定控制模式)
+    // 根据数据结构表：偏移60, 长度2bit. (C:0, N:1, S:2)
+    uint8_t gear = (vtx_buf[7] >> 4) & 0x03;
+    if (gear == 0)      rc_ctrl[TEMP].rc.switch_left = RC_SW_UP;   // C档: 键鼠模式
+    else if (gear == 1) rc_ctrl[TEMP].rc.switch_left = RC_SW_MID;  // N档: 纯遥控模式
+    else if (gear == 2) rc_ctrl[TEMP].rc.switch_left = RC_SW_DOWN; // S档: 视觉自瞄模式
+
+    // 3. 提取按键状态
+    uint8_t pause_btn = (vtx_buf[7] >> 6) & 0x01; // 暂停按键 (偏移62)
+    uint8_t custom_l  = (vtx_buf[7] >> 7) & 0x01; // 左自定义按键 (偏移63)
+    uint8_t trigger   = (vtx_buf[9] >> 4) & 0x01; // 扳机键 (偏移76)
+
+    // 4. 按键边缘检测 (Toggle 逻辑) -> 映射到右侧拨杆 (决定底盘模式)
+
+    // 如果暂停按键被按下 (上升沿) -> 强制进入急停分离状态 (RC_SW_DOWN)
+    if (pause_btn && !last_pause_btn) {
+        virtual_switch_right = RC_SW_DOWN;
+    }
+    // 如果左自定义按键被按下 (上升沿) -> 强制进入底盘跟随正常跑 (RC_SW_MID)
+    if (custom_l && !last_custom_l) {
+        virtual_switch_right = RC_SW_MID;
+    }
+
+    // 扳机键是“按住生效”的，按住时为小陀螺(RC_SW_UP)，松开时恢复之前的状态
+    if (trigger) {
+        rc_ctrl[TEMP].rc.switch_right = RC_SW_UP; // 按住进入小陀螺
+    } else {
+        rc_ctrl[TEMP].rc.switch_right = virtual_switch_right; // 松开恢复正常/急停
+    }
+
+    last_pause_btn = pause_btn;
+    last_custom_l = custom_l;
+
+    // 5. 键鼠数据透传解算
+    rc_ctrl[TEMP].mouse.x = (int16_t)(vtx_buf[10] | (vtx_buf[11] << 8));
+    rc_ctrl[TEMP].mouse.y = (int16_t)(vtx_buf[12] | (vtx_buf[13] << 8));
+    rc_ctrl[TEMP].mouse.press_l = vtx_buf[16] & 0x01;
+    rc_ctrl[TEMP].mouse.press_r = (vtx_buf[16] >> 2) & 0x01;
+    *(uint16_t *)&rc_ctrl[TEMP].key[KEY_PRESS] = (uint16_t)(vtx_buf[17] | (vtx_buf[18] << 8));
+
+    // 6. Shift/Ctrl 等组合键边缘检测处理
+    if (rc_ctrl[TEMP].key[KEY_PRESS].ctrl)
+        rc_ctrl[TEMP].key[KEY_PRESS_WITH_CTRL] = rc_ctrl[TEMP].key[KEY_PRESS];
+    else memset(&rc_ctrl[TEMP].key[KEY_PRESS_WITH_CTRL], 0, sizeof(Key_t));
+
+    if (rc_ctrl[TEMP].key[KEY_PRESS].shift)
+        rc_ctrl[TEMP].key[KEY_PRESS_WITH_SHIFT] = rc_ctrl[TEMP].key[KEY_PRESS];
+    else memset(&rc_ctrl[TEMP].key[KEY_PRESS_WITH_SHIFT], 0, sizeof(Key_t));
+
+    uint16_t key_now = rc_ctrl[TEMP].key[KEY_PRESS].keys,
+        key_last = rc_ctrl[LAST].key[KEY_PRESS].keys,
+        key_with_ctrl = rc_ctrl[TEMP].key[KEY_PRESS_WITH_CTRL].keys,
+        key_with_shift = rc_ctrl[TEMP].key[KEY_PRESS_WITH_SHIFT].keys,
+        key_last_with_ctrl = rc_ctrl[LAST].key[KEY_PRESS_WITH_CTRL].keys,
+        key_last_with_shift = rc_ctrl[LAST].key[KEY_PRESS_WITH_SHIFT].keys;
+    for (uint16_t i = 0, j = 0x1; i < 16; j <<= 1, i++)
+    {
+        if (i == 4  || i == 5) continue;
+        if ((key_now & j) && !(key_last & j) && !(key_with_ctrl & j) && !(key_with_shift & j))
+            rc_ctrl[TEMP].key_count[KEY_PRESS][i]++;
+        if ((key_with_ctrl & j) && !(key_last_with_ctrl & j))
+            rc_ctrl[TEMP].key_count[KEY_PRESS_WITH_CTRL][i]++;
+        if ((key_with_shift & j) && !(key_last_with_shift & j))
+            rc_ctrl[TEMP].key_count[KEY_PRESS_WITH_SHIFT][i]++;
+    }
+
+    rc_ctrl[TEMP].lost_flag = 0;
+    memcpy(&rc_ctrl[LAST], &rc_ctrl[TEMP], sizeof(RC_ctrl_t));
+}
+
+// 图传独立串口接收回调
+static void VTXRxCallback()
+{
+    DaemonReload(rc_daemon_instance);         // 同样喂给遥控器的狗
+    vtx_to_rc(vtx_usart_instance->recv_buff); // 使用图传解析逻辑
+}
+
+// 图传初始化注册函数 (在 robot_cmd.c 被调用)
+void VTXControlInit(UART_HandleTypeDef *vtx_usart_handle)
+{
+    USART_Init_Config_s conf;
+    conf.module_callback = VTXRxCallback;
+    conf.usart_handle = vtx_usart_handle;
+    conf.recv_buff_size = 21; // 图传为21字节
+    vtx_usart_instance = USARTRegister(&conf);
 }
