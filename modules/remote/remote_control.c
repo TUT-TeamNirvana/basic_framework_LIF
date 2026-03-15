@@ -14,8 +14,6 @@ static uint8_t rc_init_flag = 0; // 遥控器初始化标志位
 
 // 图传链路数据，用于记录模拟DT7的右侧拨杆状态 (默认处于中档: 底盘跟随模式)
 static uint8_t virtual_switch_right = RC_SW_MID;
-static uint8_t last_pause_btn = 0;
-static uint8_t last_custom_l = 0;
 
 // 遥控器拥有的串口实例,因为遥控器是单例,所以这里只有一个,就不封装了
 static USARTInstance *rc_usart_instance;
@@ -169,26 +167,20 @@ static void vtx_to_rc(const uint8_t *vtx_buf)
     uint8_t custom_l  = (vtx_buf[7] >> 7) & 0x01; // 左自定义按键 (偏移63)
     uint8_t trigger   = (vtx_buf[9] >> 4) & 0x01; // 扳机键 (偏移76)
 
-    // 4. 按键边缘检测 (Toggle 逻辑) -> 映射到右侧拨杆 (决定底盘模式)
-
-    // 如果暂停按键被按下 (上升沿) -> 强制进入急停分离状态 (RC_SW_DOWN)
-    if (pause_btn && !last_pause_btn) {
-        virtual_switch_right = RC_SW_DOWN;
-    }
-    // 如果左自定义按键被按下 (上升沿) -> 强制进入底盘跟随正常跑 (RC_SW_MID)
-    if (custom_l && !last_custom_l) {
-        virtual_switch_right = RC_SW_MID;
+    // 4. 处理右侧拨杆状态机 (决定底盘模式)
+    // 每次只要读到按键按下，就强制覆盖静态状态。不用上升沿判断，更可靠。
+    if (pause_btn) {
+        virtual_switch_right = RC_SW_DOWN; // 按下暂停，记住处于“急停”
+    } else if (custom_l) {
+        virtual_switch_right = RC_SW_MID;  // 按下自定义，记住处于“跟随”
     }
 
-    // 扳机键是“按住生效”的，按住时为小陀螺(RC_SW_UP)，松开时恢复之前的状态
+    // 扳机键拥有最高优先级（按住生效，不覆盖记忆状态）
     if (trigger) {
-        rc_ctrl[TEMP].rc.switch_right = RC_SW_UP; // 按住进入小陀螺
+        rc_ctrl[TEMP].rc.switch_right = RC_SW_UP;
     } else {
-        rc_ctrl[TEMP].rc.switch_right = virtual_switch_right; // 松开恢复正常/急停
+        rc_ctrl[TEMP].rc.switch_right = virtual_switch_right;
     }
-
-    last_pause_btn = pause_btn;
-    last_custom_l = custom_l;
 
     // 5. 键鼠数据透传解算
     rc_ctrl[TEMP].mouse.x = (int16_t)(vtx_buf[10] | (vtx_buf[11] << 8));
@@ -230,7 +222,7 @@ static void vtx_to_rc(const uint8_t *vtx_buf)
 // 图传独立串口接收回调
 static void VTXRxCallback()
 {
-    DaemonReload(rc_daemon_instance);         // 同样喂给遥控器的狗
+    DaemonReload(rc_daemon_instance);
     vtx_to_rc(vtx_usart_instance->recv_buff); // 使用图传解析逻辑
 }
 
