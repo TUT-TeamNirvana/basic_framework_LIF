@@ -356,8 +356,8 @@ static void MouseKeySet()
         //     gimbal_cmd_send.pitch = -20;
         // }
         //默认鼠标右键是开启视觉模式，但是目前没有视觉代码我把上面代码注释掉以防疯车
-        gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].mouse.x;
-        gimbal_cmd_send.pitch -= 0.001f * (float)rc_data[TEMP].mouse.y;
+        gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
+        gimbal_cmd_send.pitch += 0.01f * (float)rc_data[TEMP].mouse.y;
         if (gimbal_cmd_send.pitch > 50)
         {
             gimbal_cmd_send.pitch = 50;
@@ -367,8 +367,8 @@ static void MouseKeySet()
             gimbal_cmd_send.pitch = -20;
         }
     } else {
-        gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].mouse.x;
-        gimbal_cmd_send.pitch -= 0.001f * (float)rc_data[TEMP].mouse.y;
+        gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
+        gimbal_cmd_send.pitch += 0.01f * (float)rc_data[TEMP].mouse.y;
         if (gimbal_cmd_send.pitch > 50)
         {
             gimbal_cmd_send.pitch = 50;
