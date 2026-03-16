@@ -92,26 +92,26 @@
  {
      LEN_game_state = 11,							 // 0x0001
      LEN_game_result = 1,						 // 0x0002
-     LEN_game_robot_HP = 32,						 // 0x0003
+     LEN_game_robot_HP = 16,						 // 0x0003 2026.3.16将32修改为16
      LEN_event_data = 4,							 // 0x0101
      //LEN_supply_projectile_action = 4,			  0x0102 2025.3.14删除，2024.12.25 V1.7.0 删除该命令码
      LEN_referee_warning = 3,                       // 0x0104 2025.3.14添加
      LEN_dart_info = 3,							 // 0x0105 2025.3.14添加
      LEN_game_robot_state = 13,					 // 0x0201
-     LEN_power_heat_data = 16,					 // 0x0202
+     LEN_power_heat_data = 14,					 // 0x0202 2026.3.16将16修改为14
      LEN_game_robot_pos = 16,					 // 0x0203
-     LEN_buff_musk = 7,							 // 0x0204 2025.3.14将6修改为7
+     LEN_buff_musk = 8,							 // 0x0204 2026.3.16将7修改为8
      //LEN_aerial_robot_energy = 2,				  0x0205 2025.3.14删除，2024.12.25 V1.7.0 删除该命令码
      LEN_robot_hurt = 1,							 // 0x0206
      LEN_shoot_data = 7,							 // 0x0207
-     LEN_shoot_num = 8,							 // 0x0208
+     LEN_shoot_num = 6,							 // 0x0208
  
  } JudgeDataLength_e;
  
  /****************************接收数据的详细说明****************************/
  /****************************接收数据的详细说明****************************/
  
- /* ID: 0x0001  Byte:  3    比赛状态数据 */
+ /* ID: 0x0001  Byte:  11    比赛状态数据 */
  typedef struct
  {
       uint8_t game_type : 4;
@@ -126,25 +126,17 @@
      uint8_t winner;
  } ext_game_result_t;
  
- /* ID: 0x0003  Byte:  32    比赛机器人血量数据 */
+ /* ID: 0x0003  Byte:  16    比赛机器人血量数据 */
  typedef struct
  {
-    uint16_t red_1_robot_HP; 
-    uint16_t red_2_robot_HP; 
-    uint16_t red_3_robot_HP; 
-    uint16_t red_4_robot_HP; 
-    uint16_t reserved1; 
-    uint16_t red_7_robot_HP; 
-    uint16_t red_outpost_HP; 
-    uint16_t red_base_HP; 
-    uint16_t blue_1_robot_HP; 
-    uint16_t blue_2_robot_HP; 
-    uint16_t blue_3_robot_HP; 
-    uint16_t blue_4_robot_HP; 
-    uint16_t reserved2; 
-    uint16_t blue_7_robot_HP; 
-    uint16_t blue_outpost_HP; 
-    uint16_t blue_base_HP;
+     uint16_t ally_1_robot_HP;
+     uint16_t ally_2_robot_HP;
+     uint16_t ally_3_robot_HP;
+     uint16_t ally_4_robot_HP;
+     uint16_t reserved;
+     uint16_t ally_7_robot_HP;
+     uint16_t ally_outpost_HP;
+     uint16_t ally_base_HP;
  } ext_game_robot_HP_t;
  
  /* ID: 0x0101  Byte:  4    场地事件数据 */
@@ -174,18 +166,18 @@
  uint8_t dart_remaining_time; 
  uint16_t dart_info; 
 }dart_info_t;
- /* ID: 0X0201  Byte: 27    机器人状态数据 */
+ /* ID: 0X0201  Byte: 13    机器人状态数据 */
  typedef struct
  {
      uint8_t robot_id;
      uint8_t robot_level;
-     uint16_t current_HP; 
+     uint16_t current_HP;
      uint16_t maximum_HP;
      uint16_t shooter_barrel_cooling_value;
      uint16_t shooter_barrel_heat_limit;
      uint16_t chassis_power_limit;
      uint8_t power_management_gimbal_output : 1;
-     uint8_t power_management_chassis_output : 1; 
+     uint8_t power_management_chassis_output : 1;
      uint8_t power_management_shooter_output : 1;
  } ext_game_robot_state_t;
  
@@ -193,15 +185,15 @@
  typedef  struct 
 { 
  uint16_t reserved;
- uint16_t reserved1; 
- float reserved2; 
+ uint16_t reserved1;
+ float reserved2;
  uint16_t buffer_energy; 
  uint16_t shooter_17mm_1_barrel_heat; 
  uint16_t shooter_17mm_2_barrel_heat; 
  uint16_t shooter_42mm_barrel_heat; 
 } ext_power_heat_data_t;
  
- /* ID: 0x0203  Byte: 16    机器人位置数据 */
+ /* ID: 0x0203  Byte: 12    机器人位置数据 */
  typedef struct
  {
      float x;
@@ -209,11 +201,11 @@
      float angle;
  } ext_game_robot_pos_t;
  
- /* ID: 0x0204  Byte:  7    机器人增益数据 */
+ /* ID: 0x0204  Byte:  8    机器人增益数据 */
  typedef struct
  {
      uint8_t recovery_buff;
-     uint8_t cooling_buff;
+     uint16_t cooling_buff;
      uint8_t defence_buff;
      uint8_t vulnerability_buff;
      uint16_t attack_buff;
