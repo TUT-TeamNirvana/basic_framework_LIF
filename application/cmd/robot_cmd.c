@@ -207,8 +207,11 @@ static void RemoteControlSet()
             chassis_cmd_send.wz = 0;
         }
     } else {
-        gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].rc.rocker_l_;
-        gimbal_cmd_send.pitch += 0.001f * (float)rc_data[TEMP].rc.rocker_l1;
+        if (rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
+        {
+            gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].rc.rocker_l_;
+            gimbal_cmd_send.pitch += 0.001f * (float)rc_data[TEMP].rc.rocker_l1;
+        }
         if (gimbal_cmd_send.pitch > 50)
         {
             gimbal_cmd_send.pitch = 50;
