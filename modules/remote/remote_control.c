@@ -201,7 +201,12 @@ static void vtx_to_rc(const uint8_t *vtx_buf)
     if (trigger) {
         rc_ctrl[TEMP].rc.switch_right = RC_SW_UP; // 扳机小陀螺
     } else {
-        rc_ctrl[TEMP].rc.switch_right = virtual_switch_right;
+        // 如果当前是 C 挡(左开关是上)，为了迎合DT7的robot_cmd里的if条件，强制把右开关也切为下
+        if (rc_ctrl[TEMP].rc.switch_left == RC_SW_UP) {
+            rc_ctrl[TEMP].rc.switch_right = RC_SW_DOWN;
+        } else {
+            rc_ctrl[TEMP].rc.switch_right = virtual_switch_right;
+        }
     }
 
     // 6. 键鼠透传
