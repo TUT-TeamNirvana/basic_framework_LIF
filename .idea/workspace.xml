@@ -31,8 +31,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，工具链转为clion+cmake">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，添加图传链路，基本功能正常，只有按键切换模式效果不成功">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/remote/remote_control.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/remote/remote_control.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,7 +129,9 @@
       <workItem from="1734846871402" duration="23000" />
       <workItem from="1734846907663" duration="24000" />
       <workItem from="1773494507269" duration="5806000" />
-      <workItem from="1773571622855" duration="1094000" />
+      <workItem from="1773571622855" duration="13792000" />
+      <workItem from="1773589777413" duration="147000" />
+      <workItem from="1773663132105" duration="885000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -138,7 +141,31 @@
       <option name="project" value="LOCAL" />
       <updated>1773498328132</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="2026赛季熊猫，鼠标灵敏度调高，鼠标pitch轴反转问题修复（该bug为新出现的，上赛季并无此bug，可能跟新裁判系统有关，具体表现为用DT7控制正常，但鼠标映射时pitch轴操作反转）">
+      <option name="closed" value="true" />
+      <created>1773576138469</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1773576138469</updated>
+    </task>
+    <task id="LOCAL-00003" summary="2026赛季熊猫，添加图传链路，尚未测试">
+      <option name="closed" value="true" />
+      <created>1773584044686</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1773584044686</updated>
+    </task>
+    <task id="LOCAL-00004" summary="2026赛季熊猫，添加图传链路，基本功能正常，只有按键切换模式效果不成功">
+      <option name="closed" value="true" />
+      <created>1773588208460</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1773588208460</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -162,6 +189,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="2026赛季熊猫，工具链转为clion+cmake" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，工具链转为clion+cmake" />
+    <MESSAGE value="2026赛季熊猫，鼠标灵敏度调高，鼠标pitch轴反转问题修复（该bug为新出现的，上赛季并无此bug，可能跟新裁判系统有关，具体表现为用DT7控制正常，但鼠标映射时pitch轴操作反转）" />
+    <MESSAGE value="2026赛季熊猫，添加图传链路，尚未测试" />
+    <MESSAGE value="2026赛季熊猫，添加图传链路，基本功能正常，只有按键切换模式效果不成功" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，添加图传链路，基本功能正常，只有按键切换模式效果不成功" />
   </component>
 </project>

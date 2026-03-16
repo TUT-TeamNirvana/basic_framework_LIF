@@ -13,7 +13,13 @@ static RC_ctrl_t rc_ctrl[2];     //[0]:当前数据TEMP,[1]:上一次的数据LA
 static uint8_t rc_init_flag = 0; // 遥控器初始化标志位
 
 // 图传链路数据，用于记录模拟DT7的右侧拨杆状态 (默认处于中档: 底盘跟随模式)
-static uint8_t virtual_switch_right = RC_SW_MID;
+static uint8_t virtual_switch_right = RC_SW_MID; // 记忆当前底盘的开关状态
+static uint8_t chassis_behavior = 0;             // 底盘模式: 默认 0 (底盘跟随), 1 (底盘不跟随), 2 (小陀螺 - 临时)
+static uint8_t is_emergency_stop = 0;            // 使用 1 代表断电(急停)，0 代表正常工作
+static uint8_t last_pause_btn = 0;               // 记忆上一次暂停键状态
+static uint8_t last_custom_l = 0;                // 记忆上一次左自定义键状态
+static uint8_t pause_cd = 0;                     // 暂停键冷却,防抖处理
+static uint8_t custom_cd = 0;                    // 自定义键冷却,防抖处理
 
 // 遥控器拥有的串口实例,因为遥控器是单例,所以这里只有一个,就不封装了
 static USARTInstance *rc_usart_instance;
@@ -144,7 +150,6 @@ uint8_t RemoteControlIsOnline()
  */
 static void vtx_to_rc(const uint8_t *vtx_buf)
 {
-    // 判断固定帧头 0xA9 和 0x53
     if (vtx_buf[0] != 0xA9 || vtx_buf[1] != 0x53) return;
 
     // 1. 摇杆和拨轮解算
@@ -155,41 +160,57 @@ static void vtx_to_rc(const uint8_t *vtx_buf)
     rc_ctrl[TEMP].rc.dial = (((vtx_buf[8] >> 1) | (vtx_buf[9] << 7)) & 0x07FF) - RC_CH_VALUE_OFFSET;
     RectifyRCjoystick();
 
-    // 2. 挡位切换开关 -> 直接映射到左侧拨杆 (决定控制模式)
-    // 根据数据结构表：偏移60, 长度2bit. (C:0, N:1, S:2)
+    // 2. 挡位切换开关 (C/N/S)
     uint8_t gear = (vtx_buf[7] >> 4) & 0x03;
-    if (gear == 0)      rc_ctrl[TEMP].rc.switch_left = RC_SW_UP;   // C档: 键鼠模式
-    else if (gear == 1) rc_ctrl[TEMP].rc.switch_left = RC_SW_MID;  // N档: 纯遥控模式
-    else if (gear == 2) rc_ctrl[TEMP].rc.switch_left = RC_SW_DOWN; // S档: 视觉自瞄模式
+    if (gear == 0)      rc_ctrl[TEMP].rc.switch_left = RC_SW_UP;
+    else if (gear == 1) rc_ctrl[TEMP].rc.switch_left = RC_SW_MID;
+    else if (gear == 2) rc_ctrl[TEMP].rc.switch_left = RC_SW_DOWN;
 
     // 3. 提取按键状态
-    uint8_t pause_btn = (vtx_buf[7] >> 6) & 0x01; // 暂停按键 (偏移62)
-    uint8_t custom_l  = (vtx_buf[7] >> 7) & 0x01; // 左自定义按键 (偏移63)
-    uint8_t trigger   = (vtx_buf[9] >> 4) & 0x01; // 扳机键 (偏移76)
+    uint8_t pause_btn = (vtx_buf[7] >> 6) & 0x01;
+    uint8_t custom_l  = (vtx_buf[7] >> 7) & 0x01;
+    uint8_t trigger   = (vtx_buf[9] >> 4) & 0x01;
 
-    // 4. 处理右侧拨杆状态机 (决定底盘模式)
-    // 每次只要读到按键按下，就强制覆盖静态状态。不用上升沿判断，更可靠。
-    if (pause_btn) {
-        virtual_switch_right = RC_SW_DOWN; // 按下暂停，记住处于“急停”
-    } else if (custom_l) {
-        virtual_switch_right = RC_SW_MID;  // 按下自定义，记住处于“跟随”
+    // 冷却倒计时
+    if (pause_cd > 0) pause_cd--;
+    if (custom_cd > 0) custom_cd--;
+
+    // 4. 防抖 Toggle 逻辑
+    // 【暂停键】 -> 控制全车断电急停 (借用 lost_flag)
+    if (pause_btn && !last_pause_btn && pause_cd == 0) {
+        is_emergency_stop = !is_emergency_stop; // 翻转急停状态
+        pause_cd = 10; // 冷却 10 帧 (约 140ms)，防止一次按下触发多次翻转
     }
 
-    // 扳机键拥有最高优先级（按住生效，不覆盖记忆状态）
+    // 【左自定义键】 -> 控制底盘是否跟随 (切换右拨杆 MID/DOWN)
+    if (custom_l && !last_custom_l && custom_cd == 0) {
+        if (virtual_switch_right == RC_SW_DOWN) {
+            virtual_switch_right = RC_SW_MID; // 切换回跟随
+        } else {
+            virtual_switch_right = RC_SW_DOWN; // 切换到不跟随(原版不跟随逻辑)
+        }
+        custom_cd = 10;
+    }
+
+    last_pause_btn = pause_btn;
+    last_custom_l = custom_l;
+
+    // 5. 将计算出的状态传给结构体
+    rc_ctrl[TEMP].lost_flag = is_emergency_stop; // 神来之笔：让它去触发原车的 EmergencyHandler 断电！
+
     if (trigger) {
-        rc_ctrl[TEMP].rc.switch_right = RC_SW_UP;
+        rc_ctrl[TEMP].rc.switch_right = RC_SW_UP; // 扳机小陀螺
     } else {
         rc_ctrl[TEMP].rc.switch_right = virtual_switch_right;
     }
 
-    // 5. 键鼠数据透传解算
+    // 6. 键鼠透传
     rc_ctrl[TEMP].mouse.x = (int16_t)(vtx_buf[10] | (vtx_buf[11] << 8));
     rc_ctrl[TEMP].mouse.y = (int16_t)(vtx_buf[12] | (vtx_buf[13] << 8));
     rc_ctrl[TEMP].mouse.press_l = vtx_buf[16] & 0x01;
     rc_ctrl[TEMP].mouse.press_r = (vtx_buf[16] >> 2) & 0x01;
     *(uint16_t *)&rc_ctrl[TEMP].key[KEY_PRESS] = (uint16_t)(vtx_buf[17] | (vtx_buf[18] << 8));
 
-    // 6. Shift/Ctrl 等组合键边缘检测处理
     if (rc_ctrl[TEMP].key[KEY_PRESS].ctrl)
         rc_ctrl[TEMP].key[KEY_PRESS_WITH_CTRL] = rc_ctrl[TEMP].key[KEY_PRESS];
     else memset(&rc_ctrl[TEMP].key[KEY_PRESS_WITH_CTRL], 0, sizeof(Key_t));
@@ -215,7 +236,6 @@ static void vtx_to_rc(const uint8_t *vtx_buf)
             rc_ctrl[TEMP].key_count[KEY_PRESS_WITH_SHIFT][i]++;
     }
 
-    rc_ctrl[TEMP].lost_flag = 0;
     memcpy(&rc_ctrl[LAST], &rc_ctrl[TEMP], sizeof(RC_ctrl_t));
 }
 
