@@ -37,6 +37,7 @@ typedef enum
     PID_ChangingIntegrationRate = 0b00100000,     // 0010 0000
     PID_DerivativeFilter = 0b01000000,            // 0100 0000
     PID_ErrorHandle = 0b10000000,                 // 1000 0000
+    PID_Clamp_Anti_Windup = 0b100000000,          // 0001 0000 0000
 } PID_Improvement_e;
 
 /* PID 报错类型枚举*/
@@ -60,6 +61,8 @@ typedef struct
     float Kp;
     float Ki;
     float Kd;
+    float Kff;               // 前馈比例
+    float Kaff;              // 前馈加速度比例
     float MaxOut;
     float DeadBand;
 
@@ -78,6 +81,7 @@ typedef struct
     float Err;
     float Last_Err;
     float Last_ITerm;
+    float Last_Ref;
 
     float Pout;
     float Iout;
@@ -103,6 +107,8 @@ typedef struct // config parameter
     float Kp;
     float Ki;
     float Kd;
+    float Kff;      // 前馈比例
+    float Kaff;     // 前馈加速度比例
     float MaxOut;   // 输出限幅
     float DeadBand; // 死区
 
