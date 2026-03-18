@@ -31,9 +31,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，图传键鼠正常">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，pid改进算法，摩擦轮调参">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/remote/remote_control.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/remote/remote_control.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,6 +46,7 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/application/robot.c" root0="FORCE_HIGHLIGHTING" />
@@ -134,7 +135,8 @@
       <workItem from="1773589777413" duration="147000" />
       <workItem from="1773663132105" duration="10482000" />
       <workItem from="1773750923107" duration="2463000" />
-      <workItem from="1773822428044" duration="2985000" />
+      <workItem from="1773822428044" duration="9073000" />
+      <workItem from="1773837457041" duration="2000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -200,7 +202,31 @@
       <option name="project" value="LOCAL" />
       <updated>1773673874139</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="2026赛季熊猫，图传键鼠正常">
+      <option name="closed" value="true" />
+      <created>1773826753555</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1773826753555</updated>
+    </task>
+    <task id="LOCAL-00010" summary="2026赛季熊猫，尝试修改pid，并将云台的pid改为位置环">
+      <option name="closed" value="true" />
+      <created>1773827827905</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1773827827905</updated>
+    </task>
+    <task id="LOCAL-00011" summary="2026赛季熊猫，pid改进算法，摩擦轮调参">
+      <option name="closed" value="true" />
+      <created>1773835838559</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1773835838559</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -231,6 +257,8 @@
     <MESSAGE value="2026赛季熊猫，修复急停按钮断电后云台控制仍然积累，导致上电后云台疯转的bug" />
     <MESSAGE value="2026赛季熊猫，修改裁判系统串口协议按照v1.2.0版本手册修改" />
     <MESSAGE value="2026赛季熊猫，图传键鼠正常" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，图传键鼠正常" />
+    <MESSAGE value="2026赛季熊猫，尝试修改pid，并将云台的pid改为位置环" />
+    <MESSAGE value="2026赛季熊猫，pid改进算法，摩擦轮调参" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，pid改进算法，摩擦轮调参" />
   </component>
 </project>

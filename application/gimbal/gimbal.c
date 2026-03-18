@@ -66,7 +66,7 @@ void GimbalInit()
         },
         .controller_param_init_config = {
             .angle_PID = {
-                .Kp = 2, // 10
+                .Kp = 34, // 10
                 .Ki = 0.5,
                 .Kd = 0,
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
@@ -162,21 +162,6 @@ void GimbalTask()
     vision_send_data.present_yaw = gimbal_feedback_data.gimbal_imu_data.Yaw;   
     vision_send_data.reserved_slot = chassis_refe_data.robot_HP;
     VisionSend(&vision_send_data);
-
-    // 设置反馈数据,主要是imu和yaw的ecd
-    gimbal_feedback_data.gimbal_imu_data = *gimba_IMU_data;
-    gimbal_feedback_data.yaw_motor_single_round_angle = yaw_motor->measure.angle_single_round;
-
-    // =================================================================
-    // 添加这行来打印 Pitch 轴的绝对编码器角度和 IMU 角度
-    // 用非指针方式打印波形，通道1是电机编码器(0-360)，通道2是IMU陀螺仪Pitch角度
-    RTT_PrintWave_np(2, (double)pitch_motor->measure.angle_single_round, (double)gimba_IMU_data->Pitch);
-    // =================================================================
-
-    vision_send_data.sof = 'P';
-    vision_send_data.fire_times = 0;
-
-
     // 推送消息
     PubPushMessage(gimbal_pub, (void *)&gimbal_feedback_data);
 }
