@@ -196,7 +196,7 @@ static void vtx_to_rc(const uint8_t *vtx_buf)
     last_custom_l = custom_l;
 
     // 5. 将计算出的状态传给结构体
-    rc_ctrl[TEMP].lost_flag = is_emergency_stop; // 神来之笔：让它去触发原车的 EmergencyHandler 断电！
+    rc_ctrl[TEMP].lost_flag = is_emergency_stop; // 触发原车的 EmergencyHandler 断电
 
     if (trigger) {
         rc_ctrl[TEMP].rc.switch_right = RC_SW_UP; // 扳机小陀螺

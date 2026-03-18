@@ -31,7 +31,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，添加图传链路，基本功能正常，只有按键切换模式效果不成功">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，图传键鼠正常">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/remote/remote_control.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/remote/remote_control.c" afterDir="false" />
     </list>
@@ -53,6 +53,7 @@
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/DJImotor/dji_motor.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/servo_motor/servo_motor.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/referee/referee_protocol.h" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MakefileLocalSettings">
     <option name="projectSyncType">
@@ -131,7 +132,9 @@
       <workItem from="1773494507269" duration="5806000" />
       <workItem from="1773571622855" duration="13792000" />
       <workItem from="1773589777413" duration="147000" />
-      <workItem from="1773663132105" duration="885000" />
+      <workItem from="1773663132105" duration="10482000" />
+      <workItem from="1773750923107" duration="2463000" />
+      <workItem from="1773822428044" duration="2985000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -165,7 +168,39 @@
       <option name="project" value="LOCAL" />
       <updated>1773588208460</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="2026赛季熊猫，添加图传链路，基本功能正常，左自定义键为底盘跟随切换，暂停键为底盘+云台断电">
+      <option name="closed" value="true" />
+      <created>1773666897070</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1773666897070</updated>
+    </task>
+    <task id="LOCAL-00006" summary="2026赛季熊猫，修复急停按钮断电后云台控制仍然积累，导致上电后云台疯转的bug">
+      <option name="closed" value="true" />
+      <created>1773669829670</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1773669829670</updated>
+    </task>
+    <task id="LOCAL-00007" summary="2026赛季熊猫，修改裁判系统串口协议按照v1.2.0版本手册修改">
+      <option name="closed" value="true" />
+      <created>1773671167619</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1773671167619</updated>
+    </task>
+    <task id="LOCAL-00008" summary="2026赛季熊猫，图传键鼠正常">
+      <option name="closed" value="true" />
+      <created>1773673874139</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1773673874139</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -192,6 +227,10 @@
     <MESSAGE value="2026赛季熊猫，鼠标灵敏度调高，鼠标pitch轴反转问题修复（该bug为新出现的，上赛季并无此bug，可能跟新裁判系统有关，具体表现为用DT7控制正常，但鼠标映射时pitch轴操作反转）" />
     <MESSAGE value="2026赛季熊猫，添加图传链路，尚未测试" />
     <MESSAGE value="2026赛季熊猫，添加图传链路，基本功能正常，只有按键切换模式效果不成功" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，添加图传链路，基本功能正常，只有按键切换模式效果不成功" />
+    <MESSAGE value="2026赛季熊猫，添加图传链路，基本功能正常，左自定义键为底盘跟随切换，暂停键为底盘+云台断电" />
+    <MESSAGE value="2026赛季熊猫，修复急停按钮断电后云台控制仍然积累，导致上电后云台疯转的bug" />
+    <MESSAGE value="2026赛季熊猫，修改裁判系统串口协议按照v1.2.0版本手册修改" />
+    <MESSAGE value="2026赛季熊猫，图传键鼠正常" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，图传键鼠正常" />
   </component>
 </project>
