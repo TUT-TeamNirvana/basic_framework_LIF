@@ -31,9 +31,10 @@ void ShootInit()
         },
         .controller_param_init_config = {
             .speed_PID = {
-                .Kp = 45, // 20
+                .Kp = 15, // 20
                 .Ki = 0, // 1
                 .Kd = 0,
+                .DeadBand = 50,
                 .Improve = PID_Integral_Limit,
                 .IntegralLimit = 10000,
                 .MaxOut = 15000,
