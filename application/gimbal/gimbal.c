@@ -66,16 +66,17 @@ void GimbalInit()
         },
         .controller_param_init_config = {
             .angle_PID = {
-                .Kp = 34, // 10
+                .Kp = 10, // 10
                 .Ki = 0.5,
                 .Kd = 0,
+                .DeadBand = 0.2,
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
                 .IntegralLimit = 100,
-                .MaxOut = 500,
+                .MaxOut = 900,
             },
             .speed_PID = {
                 .Kp = 15,  // 50
-                .Ki = 0, // 350
+                .Ki = 110, // 350
                 .Kd = 0,   // 0
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
                 .IntegralLimit = 2500,
@@ -141,9 +142,8 @@ void GimbalTask()
         DJIMotorChangeFeed(pitch_motor, ANGLE_LOOP, MOTOR_FEED);
         DJIMotorChangeFeed(pitch_motor, SPEED_LOOP, MOTOR_FEED);
         DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw); // yaw和pitch会在robot_cmd中处理好多圈和单圈
-        
         // PITCH 轴使用编码器位置环, 加入3.4的减速比, 且 30.0f 为水平时的编码器绝对角度
-        DJIMotorSetRef(pitch_motor, (gimbal_cmd_recv.pitch * 3.4f) + 30.0f);
+        DJIMotorSetRef(pitch_motor, (-gimbal_cmd_recv.pitch * 3.4f) + 30.0f);
         break;
     default:
         break;

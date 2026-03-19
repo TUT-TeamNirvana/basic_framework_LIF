@@ -31,7 +31,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，pid改进算法，摩擦轮调参">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，云台pitch轴改为位置环pid，调参ing">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
     </list>
@@ -49,12 +49,16 @@
     <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/application/robot.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/DJImotor/dji_motor.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/servo_motor/servo_motor.c" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/referee/referee_protocol.h" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MakefileLocalSettings">
     <option name="projectSyncType">
@@ -137,6 +141,7 @@
       <workItem from="1773750923107" duration="2463000" />
       <workItem from="1773822428044" duration="9073000" />
       <workItem from="1773837457041" duration="2000" />
+      <workItem from="1773920987940" duration="5092000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
