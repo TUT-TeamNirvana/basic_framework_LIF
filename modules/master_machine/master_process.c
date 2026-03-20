@@ -199,9 +199,12 @@ void VisionSend(VisionSendFrame_t *tx_frame)
 
 /**
  * @brief USB 接收回调函数（仅 VCP 模式）
+ * @param len 接收到的数据长度（USB 回调传入的参数）
  */
-static void DecodeVision(void)
+static void DecodeVision(uint16_t len)
 {
+    UNUSED(len);  // 不使用该参数，因为数据已经在全局缓冲区 vis_recv_buff 中
+
     // 从 USB 接收缓冲区解包数据
     // 注意：视觉端发送时没有加\n，所以直接解包 sizeof(VisionRecvFrame_t) 字节
     unpack_recv_frame(vis_recv_buff, &recv_frame);
