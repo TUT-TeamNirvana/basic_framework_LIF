@@ -45,6 +45,11 @@ add_definitions(
     -DARM_MATH_CM4 
     ) # need -D<macro> to define macro
 
+# ========== 视觉通信方式选择 ==========
+# 可选值：UART (硬件串口) 或 VCP (虚拟串口)
+add_definitions(-DVISION_USE_VCP)
+# add_definitions(-DVISION_USE_UART)
+
 # add inc
 # 递归包含头文件的函数
 function(include_sub_directories_recursively root_dir)

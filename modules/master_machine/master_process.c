@@ -222,7 +222,7 @@ VisionRecvFrame_t* VisionInit(UART_HandleTypeDef *_handle)
 
     USB_Init_Config_s conf = {
         .rx_cbk = DecodeVision,
-        .tx_complete_cbk = NULL
+        .tx_cbk = NULL
     };
     vis_recv_buff = USBInit(conf);
 
