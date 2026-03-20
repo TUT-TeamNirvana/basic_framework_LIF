@@ -365,12 +365,21 @@ void DJIMotorControl()
                     P_cmd += (mech_power + friction_loss + copper_loss);
                 }
 
-                // 3. 判断是否超功率并计算缩放比例
-                float power_limit = chassis_motor_feedback.chassis_power_limit; 
-                if (power_limit < 45.0f) power_limit = 45.0f; // 避免裁判系统断联时限幅为0，默认给45W
+                // 3. 动态超频与判断是否超功率并计算缩放比例
+                float base_limit = chassis_motor_feedback.chassis_power_limit; 
+                if (base_limit < 45.0f) base_limit = 45.0f; // 避免裁判系统断联时限幅为0，默认给45W
                 
-                // 为没有电容预留余量，实际限制比上限低 3W (吸收突变波动)
-                float max_power = power_limit - 3.0f; 
+                float energy = chassis_motor_feedback.buffer_energy;
+                float max_power = base_limit;
+
+                // 动态超频逻辑：榨干60J缓冲能量，赋予起步爆发力
+                if (energy > 55.0f) {
+                    max_power = base_limit * 1.5f; // 满能量时允许短暂输出 1.5 倍功率爆发
+                } else if (energy > 40.0f) {
+                    max_power = base_limit * 1.2f; // 能量下降后降回 1.2 倍功率
+                } else {
+                    max_power = base_limit - 3.0f; // 跌到警戒线，锁死在上限内回血保命
+                }
 
                 if (P_cmd > max_power) {
                     // 解二次方程衰减电流：为了保持运动学比例，对四轮电流乘以相同系数 lambda
@@ -405,6 +414,16 @@ void DJIMotorControl()
                     motor3lb_set = (int16_t)(cmd_current[2] * lambda);
                     motor4rb_set = (int16_t)(cmd_current[3] * lambda);
                 }
+
+                // ==================== INA226 调参专用代码 (调好参数后可删除) ====================
+                // 获取 INA226 真实测量的总功率
+                get_power_data = get_power_meter_data();
+                float real_power = get_power_data->power; 
+
+                // 用 RTT 同时打印出：预测功率、真实功率、限制阈值
+                // 在 J-Scope 里看这三条曲线是否完全贴合！
+                RTT_PrintWave_np(3, (double)P_cmd, (double)real_power, (double)max_power);
+                // =================================================================================
 
                 sender_assignment[i].tx_buff[0] = (uint8_t)(motor1rf_set>>8);
                 sender_assignment[i].tx_buff[1] = (uint8_t)(motor1rf_set&0x00ff);
