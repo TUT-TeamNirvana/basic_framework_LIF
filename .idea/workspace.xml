@@ -31,14 +31,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="电控和视觉对接的虚拟串口已经完全&#10;做好了">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="修改referee_UI.c中的crc校验为小写（兼容视觉）">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/master_machine/master_process.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/master_machine/master_process.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/referee/crc_ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/crc_ref.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/referee/crc_ref.h" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/crc_ref.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/referee/rm_referee.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/rm_referee.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/referee/referee_UI.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/referee_UI.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -217,7 +212,23 @@
       <option name="project" value="LOCAL" />
       <updated>1773992099826</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="修改了gimbal.c中视觉数据的发送逻辑，修改rm_referee.c中的crc校验为小写（兼容视觉）">
+      <option name="closed" value="true" />
+      <created>1773995682122</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1773995682122</updated>
+    </task>
+    <task id="LOCAL-00008" summary="修改referee_UI.c中的crc校验为小写（兼容视觉）">
+      <option name="closed" value="true" />
+      <created>1773995868408</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1773995868408</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -246,7 +257,9 @@
     <MESSAGE value="2026赛季熊猫，添加图传链路，基本功能正常，只有按键切换模式效果不成功" />
     <MESSAGE value="2026赛季电控与视觉接口修改第一版，目前向视觉发送数据的频率不确定，可能需要修改，crc8和crc16的实现不确定是否可以使用" />
     <MESSAGE value="电控和视觉对接的虚拟串口已经完全&#10;做好了" />
-    <option name="LAST_COMMIT_MESSAGE" value="电控和视觉对接的虚拟串口已经完全&#10;做好了" />
+    <MESSAGE value="修改了gimbal.c中视觉数据的发送逻辑，修改rm_referee.c中的crc校验为小写（兼容视觉）" />
+    <MESSAGE value="修改referee_UI.c中的crc校验为小写（兼容视觉）" />
+    <option name="LAST_COMMIT_MESSAGE" value="修改referee_UI.c中的crc校验为小写（兼容视觉）" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
