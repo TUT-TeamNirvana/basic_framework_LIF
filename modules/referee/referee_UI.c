@@ -28,7 +28,7 @@ void UIDelete(referee_id_t *_id, uint8_t Del_Operate, uint8_t Del_Layer)
 	UI_delete_data.FrameHeader.SOF = REFEREE_SOF;
 	UI_delete_data.FrameHeader.DataLength = temp_datalength;
 	UI_delete_data.FrameHeader.Seq = UI_Seq;
-	UI_delete_data.FrameHeader.CRC8 = Get_CRC8_Check_Sum((uint8_t *)&UI_delete_data, LEN_CRC8, 0xFF);
+	UI_delete_data.FrameHeader.CRC8 = get_crc8_check_sum((uint8_t *)&UI_delete_data, LEN_CRC8, 0xFF);
 
 	// UI_delete_data.CmdID = ID_student_interactive;
 
@@ -39,7 +39,7 @@ void UIDelete(referee_id_t *_id, uint8_t Del_Operate, uint8_t Del_Layer)
 	UI_delete_data.Delete_Operate = Del_Operate; // 删除操作
 	UI_delete_data.Layer = Del_Layer;
 
-	UI_delete_data.frametail = Get_CRC16_Check_Sum((uint8_t *)&UI_delete_data, LEN_HEADER + LEN_CMDID + temp_datalength, 0xFFFF);
+	UI_delete_data.frametail = get_crc8_check_sum((uint8_t *)&UI_delete_data, LEN_HEADER + LEN_CMDID + temp_datalength, 0xFFFF);
 	/* 填入0xFFFF,关于crc校验 */
 
 	RefereeSend((uint8_t *)&UI_delete_data, LEN_HEADER + LEN_CMDID + temp_datalength + LEN_TAIL); // 发送
@@ -360,7 +360,7 @@ void UIGraphRefresh(referee_id_t *_id, int cnt, ...)
 	UI_GraphReFresh_data.FrameHeader.SOF = REFEREE_SOF;
 	UI_GraphReFresh_data.FrameHeader.DataLength = Interactive_Data_LEN_Head + cnt * UI_Operate_LEN_PerDraw;
 	UI_GraphReFresh_data.FrameHeader.Seq = UI_Seq;
-	UI_GraphReFresh_data.FrameHeader.CRC8 = Get_CRC8_Check_Sum((uint8_t *)&UI_GraphReFresh_data, LEN_CRC8, 0xFF);
+	UI_GraphReFresh_data.FrameHeader.CRC8 = get_crc8_check_sum((uint8_t *)&UI_GraphReFresh_data, LEN_CRC8, 0xFF);
 
 	// UI_GraphReFresh_data.CmdID = ID_student_interactive;
 
@@ -389,7 +389,7 @@ void UIGraphRefresh(referee_id_t *_id, int cnt, ...)
 		graphData = va_arg(ap, Graph_Data_t); // 访问参数列表中的每个项,第二个参数是你要返回的参数的类型,在取值时需要将其强制转化为指定类型的变量
 		memcpy(buffer + (LEN_HEADER + LEN_CMDID + Interactive_Data_LEN_Head + UI_Operate_LEN_PerDraw * i), (uint8_t *)&graphData, UI_Operate_LEN_PerDraw);
 	}
-	Append_CRC16_Check_Sum(buffer, temp_datalength);
+	append_crc16_check_sum(buffer, temp_datalength);
 	RefereeSend(buffer, temp_datalength);
 
 	va_end(ap); // 结束可变参数的获取
@@ -405,7 +405,7 @@ void UICharRefresh(referee_id_t *_id, String_Data_t string_Data)
 	UI_CharReFresh_data.FrameHeader.SOF = REFEREE_SOF;
 	UI_CharReFresh_data.FrameHeader.DataLength = temp_datalength;
 	UI_CharReFresh_data.FrameHeader.Seq = UI_Seq;
-	UI_CharReFresh_data.FrameHeader.CRC8 = Get_CRC8_Check_Sum((uint8_t *)&UI_CharReFresh_data, LEN_CRC8, 0xFF);
+	UI_CharReFresh_data.FrameHeader.CRC8 = get_crc8_check_sum((uint8_t *)&UI_CharReFresh_data, LEN_CRC8, 0xFF);
 
 	// UI_CharReFresh_data.CmdID = ID_student_interactive;
 
@@ -416,7 +416,7 @@ void UICharRefresh(referee_id_t *_id, String_Data_t string_Data)
 
 	UI_CharReFresh_data.String_Data = string_Data;
 
-	UI_CharReFresh_data.frametail = Get_CRC16_Check_Sum((uint8_t *)&UI_CharReFresh_data, LEN_HEADER + LEN_CMDID + temp_datalength, 0xFFFF);
+	UI_CharReFresh_data.frametail = get_crc16_check_sum((uint8_t *)&UI_CharReFresh_data, LEN_HEADER + LEN_CMDID + temp_datalength, 0xFFFF);
 
 	RefereeSend((uint8_t *)&UI_CharReFresh_data, LEN_HEADER + LEN_CMDID + temp_datalength + LEN_TAIL); // 发送
 
