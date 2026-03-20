@@ -6,6 +6,7 @@
 #define BASIC_FRAMEWORK_ROBOT_VISION_H
 
 #include <stdint.h>
+#include <crc_ref.h>
 #include <string.h>
 
 // 帧头和帧尾定义（与视觉端 structure.h 保持一致）
@@ -58,11 +59,11 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+    // CRC8 函数声明（与 modules/referee/crc_ref.c 保持一致）
     uint8_t get_crc8_check_sum(uint8_t* pchMessage, uint16_t dwLength, uint8_t ucCRC8);
     void append_crc8_check_sum(uint8_t* pchMessage, uint16_t dwLength);
     uint8_t verify_crc8_check_sum(uint8_t* pchMessage, uint16_t dwLength);
-
+    // CRC16 函数声明（与 modules/referee/crc_ref.c 保持一致）
     uint16_t get_crc16_check_sum(uint8_t* pchMessage, uint32_t dwLength, uint16_t wCRC);
     void append_crc16_check_sum(uint8_t* pchMessage, uint32_t dwLength);
     uint8_t verify_crc16_check_sum(uint8_t* pchMessage, uint32_t dwLength);

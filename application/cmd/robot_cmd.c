@@ -69,7 +69,7 @@ void RobotCMDInit()
     vision_send.output_data.target_pose[2] = 0.0f;
     vision_send.output_data.curr_yaw = 0.0f;
     vision_send.output_data.curr_pitch = 0.0f;
-    vision_send.output_data.enemy_color = 1;  // 1=红色，0=蓝色
+    vision_send.output_data.enemy_color = 1;  // 1=红色，0=蓝色，实际应该从裁判系统获取
     vision_send.output_data.shoot_config = 0;
 
     extern void VTXControlInit(UART_HandleTypeDef *vtx_usart_handle);   //图传链路
@@ -558,8 +558,12 @@ void RobotCMDTask()
     vision_send.output_data.curr_yaw = gimbal_fetch_data.gimbal_imu_data.Yaw;
     vision_send.output_data.curr_pitch = gimbal_fetch_data.gimbal_imu_data.Pitch;
     // 如果需要，还可以更新其他字段
-    // vision_send.output_data.enemy_color = chassis_fetch_data.enemy_color;
-    // vision_send.output_data.shoot_config = shoot_cmd_send.bullet_speed;
+    // vision_send.output_data.enemy_color = chassis_fetch_data.enemy_color;//读取裁判系统红蓝方并更新
+    // vision_send.output_data.shoot_config = shoot_cmd_send.bullet_speed;//根据当前弹速设置更新发送给视觉的数据，供视觉使用(比如调整瞄准算法)
+    // 如果需要，更新目标位置信息（例如来自视觉的目标）
+    // vision_send.output_data.target_pose[0] = target_x;
+    // vision_send.output_data.target_pose[1] = target_y;
+    // vision_send.output_data.target_pose[2] = target_z;
 
     // 发送数据给视觉（200Hz）
     VisionSend(&vision_send);
