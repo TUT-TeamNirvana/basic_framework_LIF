@@ -1,4 +1,5 @@
 #include "dji_motor.h"
+#include <math.h>
 #include "general_def.h"
 #include "bsp_dwt.h"
 #include "bsp_log.h"
@@ -328,89 +329,82 @@ void DJIMotorControl()
                 int16_t motor3lb_set = (int16_t)(sender_assignment[i].tx_buff[4]<<8)|(sender_assignment[i].tx_buff[5]&0x00ff);
                 int16_t motor4rb_set = (int16_t)(sender_assignment[i].tx_buff[6]<<8)|(sender_assignment[i].tx_buff[7]&0x00ff);
                 
-                // pid功率控制方案
-                float pid_measure, pid_ref; //功率设置值和反馈值
-                get_power_data = get_power_meter_data();
-                pid_measure = get_power_data->power; //功率反馈值
-                float chassis_voltage = get_power_data->voltage; //电压值
-                float chassis_current = get_power_data->current; //电流值
-                float chassis_power = get_power_data->power; //功率值
-                
-                // if(chassis_motor_feedback.speed_vx || chassis_motor_feedback.speed_vy || chassis_motor_feedback.speed_wz)
-                // {
-                    
-                    
-                //     //debug
-                //     // SEGGER_RTT_SetTerminal(1);//设置显示的终端
-                //     // float temp_power_show = pid_measure; 
-                //     // sprintf(printf_buf,"Chassis_power=%f\r\n", chassis_power);
-                //     // SEGGER_RTT_WriteString(0, printf_buf);
-                    
-                    
-                    
-                //     pid_ref = chassis_motor_feedback.chassis_power_limit; //功率设置值
-                //     // power_pid_ = &power_pid;
-                    
-                //     pid_ref = PIDCalculate(&power_pid, pid_measure, pid_ref);
-                    
+                // 预测功率控制算法 (Predictive Power Control)
+                // 1. 获取当前电机的设定值 (PID输出) 和当前转速
+                float cmd_current[4];
+                cmd_current[0] = (float)motor1rf_set;
+                cmd_current[1] = (float)motor2lf_set;
+                cmd_current[2] = (float)motor3lb_set;
+                cmd_current[3] = (float)motor4rb_set;
 
-                //     SEGGER_RTT_SetTerminal(1);//设置显示的终端
-                //     sprintf(printf_buf,"absolute=%f\r\n",pid_ref);
-                //     SEGGER_RTT_WriteString(0, printf_buf);
-                    
-                    
-                //     // 调试PID用代码
-                //     motor1rf_set = (int16_t)((float)motor1rf_set*pid_ref);
-                //     motor2lf_set = (int16_t)((float)motor2lf_set*pid_ref);
-                //     motor3lb_set = (int16_t)((float)motor3lb_set*pid_ref);
-                //     motor4rb_set = (int16_t)((float)motor4rb_set*pid_ref);
-
-                //     //以下为实际启用PID代码：启用缓冲能量机制
-                //     // if(chassis_motor_feedback.buffer_energy > 20)
-                //     // {
-                //     //     motor1_set = (int16_t)((float)motor1_set + (float)motor1_set*pid_ref);
-                //     //     motor2_set = (int16_t)((float)motor2_set + (float)motor2_set*pid_ref);
-                //     //     motor3_set = (int16_t)((float)motor2_set + (float)motor3_set*pid_ref);
-                //     //     motor4_set = (int16_t)((float)motor2_set + (float)motor4_set*pid_ref);
-                //     // } else if (chassis_motor_feedback.buffer_energy < 10)
-                //     // {
-                //     //     motor1_set = (int16_t)((float)motor1_set*0.2);
-                //     //     motor2_set = (int16_t)((float)motor2_set*0.2);
-                //     //     motor3_set = (int16_t)((float)motor3_set*0.2);
-                //     //     motor4_set = (int16_t)((float)motor4_set*0.2);
-                //     // }
-
-                    
-                // }
-
-                // 原功率控制方案
-                if (chassis_motor_feedback.buffer_energy < 60)
-                {
-                    if (chassis_motor_feedback.buffer_energy < 30)
-                    {
-                        if (chassis_motor_feedback.buffer_energy < 10)
-                        {
-                            motor1rf_set = (int16_t)((float)motor1rf_set*0.2);
-                            motor2lf_set = (int16_t)((float)motor2lf_set*0.2);
-                            motor3lb_set = (int16_t)((float)motor3lb_set*0.2);
-                            motor4rb_set = (int16_t)((float)motor4rb_set*0.2);
-                        }else{
-                            motor1rf_set = (int16_t)((float)motor1rf_set*0.4);
-                            motor2lf_set = (int16_t)((float)motor2lf_set*0.4);
-                            motor3lb_set = (int16_t)((float)motor3lb_set*0.4);
-                            motor4rb_set = (int16_t)((float)motor4rb_set*0.4);
+                float w[4] = {0, 0, 0, 0};
+                for (size_t m = 0; m < idx; ++m) {
+                    DJIMotorInstance *motor_ptr = dji_motor_instance[m];
+                    // 底盘电机挂载在 CAN1 (hcan1) 且 group 为 1 (ID 1-4)
+                    if (motor_ptr->motor_can_instance->can_handle == &hcan1 && motor_ptr->sender_group == 1) {
+                        uint8_t num = motor_ptr->message_num; // 0:rf, 1:lf, 2:lb, 3:rb
+                        if (num < 4) {
+                            // 将角度每秒(度/s)转换为弧度每秒(rad/s)
+                            w[num] = motor_ptr->measure.speed_aps * 3.14159f / 180.0f;
                         }
-                        
-                    }else{
-                        motor1rf_set = (int16_t)((float)motor1rf_set*0.6);
-                        motor2lf_set = (int16_t)((float)motor2lf_set*0.6);
-                        motor3lb_set = (int16_t)((float)motor3lb_set*0.6);
-                        motor4rb_set = (int16_t)((float)motor4rb_set*0.6);
                     }
                 }
-                // float power_measure = chassis_power;
-                // float power_target = chassis_motor_feedback.chassis_power_limit;
-                // RTT_PrintWave_np(2,power_measure,power_target); //非指针参数打印波形
+
+                // 2. 根据M3508的电磁和机械损耗模型估算功率
+                // 此处参数可先用经典经验值，后续可接INA226重新测量拟合
+                float k1 = 0.002f;    // 机械阻力损耗系数 (与转速成正比)
+                float k2 = 0.0000002f;// 铜损系数 (与电流的平方成正比，根据M3508参数估算)
+                float k3 = 5.0f;      // 系统静态损耗 (待机功率)
+                float k_T = 0.0003f;  // 力矩常数 (将PID输出映射为有效做功系数)
+
+                float P_cmd = k3;
+                for (int m = 0; m < 4; m++) {
+                    float mech_power = k_T * cmd_current[m] * w[m];
+                    float friction_loss = k1 * fabs(w[m]);
+                    float copper_loss = k2 * cmd_current[m] * cmd_current[m];
+                    P_cmd += (mech_power + friction_loss + copper_loss);
+                }
+
+                // 3. 判断是否超功率并计算缩放比例
+                float power_limit = chassis_motor_feedback.chassis_power_limit; 
+                if (power_limit < 45.0f) power_limit = 45.0f; // 避免裁判系统断联时限幅为0，默认给45W
+                
+                // 为没有电容预留余量，实际限制比上限低 3W (吸收突变波动)
+                float max_power = power_limit - 3.0f; 
+
+                if (P_cmd > max_power) {
+                    // 解二次方程衰减电流：为了保持运动学比例，对四轮电流乘以相同系数 lambda
+                    // sum( k_T * lambda * I * w + k1*|w| + k2 * lambda^2 * I^2 ) + k3 = max_power
+                    // a * lambda^2 + b * lambda + c = 0
+                    float a = 0.0f;
+                    float b = 0.0f;
+                    float c = k3 - max_power;
+                    for (int m = 0; m < 4; m++) {
+                        a += k2 * cmd_current[m] * cmd_current[m];
+                        b += k_T * cmd_current[m] * w[m];
+                        c += k1 * fabs(w[m]);
+                    }
+
+                    float lambda = 1.0f;
+                    if (a > 0.000001f) {
+                        float delta = b * b - 4.0f * a * c;
+                        if (delta >= 0.0f) {
+                            lambda = (-b + sqrtf(delta)) / (2.0f * a);
+                        } else {
+                            lambda = 0.0f;
+                        }
+                    } else if (fabs(b) > 0.000001f) {
+                        lambda = -c / b;
+                    }
+
+                    if (lambda < 0.0f) lambda = 0.0f;
+                    if (lambda > 1.0f) lambda = 1.0f;
+
+                    motor1rf_set = (int16_t)(cmd_current[0] * lambda);
+                    motor2lf_set = (int16_t)(cmd_current[1] * lambda);
+                    motor3lb_set = (int16_t)(cmd_current[2] * lambda);
+                    motor4rb_set = (int16_t)(cmd_current[3] * lambda);
+                }
 
                 sender_assignment[i].tx_buff[0] = (uint8_t)(motor1rf_set>>8);
                 sender_assignment[i].tx_buff[1] = (uint8_t)(motor1rf_set&0x00ff);
