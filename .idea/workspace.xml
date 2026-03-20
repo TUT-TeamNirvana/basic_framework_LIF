@@ -33,6 +33,7 @@
   <component name="ChangeListManager">
     <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，云台pitch轴改为位置环pid，调参ing">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/chassis/chassis.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/chassis/chassis.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -142,6 +143,7 @@
       <workItem from="1773822428044" duration="9073000" />
       <workItem from="1773837457041" duration="2000" />
       <workItem from="1773920987940" duration="5092000" />
+      <workItem from="1773983610297" duration="399000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />

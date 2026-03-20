@@ -58,7 +58,7 @@ void GimbalInit()
             .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
         },
         .motor_type = GM6020};
-    // PITCH
+    // PITCH，参数x减速比3.4
     Motor_Init_Config_s pitch_config = {
         .can_init_config = {
             .can_handle = &hcan2,
@@ -66,13 +66,13 @@ void GimbalInit()
         },
         .controller_param_init_config = {
             .angle_PID = {
-                .Kp = 10, // 10
-                .Ki = 0.5,
+                .Kp = 34, // 10
+                .Ki = 1.7,
                 .Kd = 0,
                 .DeadBand = 0.2,
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
-                .IntegralLimit = 100,
-                .MaxOut = 900,
+                .IntegralLimit = 340,
+                .MaxOut = 1700,
             },
             .speed_PID = {
                 .Kp = 15,  // 50
