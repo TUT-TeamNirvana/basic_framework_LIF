@@ -177,17 +177,37 @@ static void RemoteControlSet()
     if (switch_is_down(rc_data[TEMP].rc.switch_left))
     {
         // 使用新的视觉接收数据结构
-        InputData_t *vision_input = &vision_recv_data->input_data;
+        if (vision_recv_data != NULL)
+        {
+            InputData_t *vision_input = &vision_recv_data->input_data;
 
-        gimbal_cmd_send.yaw = vision_input->shoot_yaw;
-        gimbal_cmd_send.pitch = vision_input->shoot_pitch;
-        shoot_cmd_send.shoot_num = vision_input->fire;
-        if (shoot_cmd_send.shoot_num == 1)
+            if (vision_input->shoot_yaw != 0.0f || vision_input->shoot_pitch != 0.0f)
+            {
+                gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+                gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+                shoot_cmd_send.shoot_num = vision_input->fire;
+                if (shoot_cmd_send.shoot_num == 1)
+                {
+                    shoot_cmd_send.load_mode = LOAD_VISION;
+                }else if (shoot_cmd_send.shoot_num == 0)
+                {
+                    shoot_cmd_send.load_mode = LOAD_STOP;
+                }
+            } else
+            {
+                if (rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
+                {
+                    gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].rc.rocker_l_;
+                    gimbal_cmd_send.pitch += 0.001f * (float)rc_data[TEMP].rc.rocker_l1;
+                }
+            }
+        } else
         {
-            shoot_cmd_send.load_mode = LOAD_VISION;
-        }else if (shoot_cmd_send.shoot_num == 0)
-        {
-            shoot_cmd_send.load_mode = LOAD_STOP;
+            if (rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
+            {
+                gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].rc.rocker_l_;
+                gimbal_cmd_send.pitch += 0.001f * (float)rc_data[TEMP].rc.rocker_l1;
+            }
         }
         // 注意：新的协议中没有 reserved_slot 字段
         // 如果需要类似功能，需要在 InputData_t 中添加
