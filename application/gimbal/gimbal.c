@@ -100,10 +100,6 @@ void GimbalInit()
     yaw_motor = DJIMotorInit(&yaw_config);
     pitch_motor = DJIMotorInit(&pitch_config);
 
-    // 强制 Pitch 轴位置环使用单圈绝对角度，防止 total_angle 过零点多圈累加导致的失控
-    pitch_motor->motor_settings.angle_feedback_source = OTHER_FEED;
-    pitch_motor->motor_controller.other_angle_feedback_ptr = &pitch_motor->measure.angle_single_round;
-
     gimbal_pub = PubRegister("gimbal_feed", sizeof(Gimbal_Upload_Data_s));
     gimbal_sub = SubRegister("gimbal_cmd", sizeof(Gimbal_Ctrl_Cmd_s));
     chassis_sub = SubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
