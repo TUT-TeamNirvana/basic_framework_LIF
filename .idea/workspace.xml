@@ -31,10 +31,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，云台pitch轴改为位置环pid，调参ing">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，pid调参">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/chassis/chassis.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/chassis/chassis.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,10 +48,7 @@
     <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/chassis/chassis.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/application/robot.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.c" root0="FORCE_HIGHLIGHTING" />
@@ -143,7 +138,7 @@
       <workItem from="1773822428044" duration="9073000" />
       <workItem from="1773837457041" duration="2000" />
       <workItem from="1773920987940" duration="5092000" />
-      <workItem from="1773983610297" duration="399000" />
+      <workItem from="1773983610297" duration="1995000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -233,7 +228,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773835838559</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="2026赛季熊猫，pid调参">
+      <option name="closed" value="true" />
+      <created>1773984391394</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1773984391394</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -266,6 +269,7 @@
     <MESSAGE value="2026赛季熊猫，图传键鼠正常" />
     <MESSAGE value="2026赛季熊猫，尝试修改pid，并将云台的pid改为位置环" />
     <MESSAGE value="2026赛季熊猫，pid改进算法，摩擦轮调参" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，pid改进算法，摩擦轮调参" />
+    <MESSAGE value="2026赛季熊猫，pid调参" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，pid调参" />
   </component>
 </project>

@@ -100,6 +100,10 @@ void GimbalInit()
     yaw_motor = DJIMotorInit(&yaw_config);
     pitch_motor = DJIMotorInit(&pitch_config);
 
+    // 强制 Pitch 轴位置环使用单圈绝对角度，防止 total_angle 过零点多圈累加导致的失控
+    pitch_motor->motor_settings.angle_feedback_source = OTHER_FEED;
+    pitch_motor->motor_controller.other_angle_feedback_ptr = &pitch_motor->measure.angle_single_round;
+
     gimbal_pub = PubRegister("gimbal_feed", sizeof(Gimbal_Upload_Data_s));
     gimbal_sub = SubRegister("gimbal_cmd", sizeof(Gimbal_Ctrl_Cmd_s));
     chassis_sub = SubRegister("chassis_feed", sizeof(Chassis_Upload_Data_s));
@@ -127,7 +131,7 @@ void GimbalTask()
         DJIMotorEnable(pitch_motor);
         DJIMotorChangeFeed(yaw_motor, ANGLE_LOOP, OTHER_FEED);
         DJIMotorChangeFeed(yaw_motor, SPEED_LOOP, OTHER_FEED);
-        DJIMotorChangeFeed(pitch_motor, ANGLE_LOOP, MOTOR_FEED);
+        DJIMotorChangeFeed(pitch_motor, ANGLE_LOOP, OTHER_FEED); // 由于在初始化硬绑定了angle_single_round，这里必须用OTHER_FEED
         DJIMotorChangeFeed(pitch_motor, SPEED_LOOP, MOTOR_FEED);
         DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw); // yaw和pitch会在robot_cmd中处理好多圈和单圈
         // PITCH 轴使用编码器位置环, 加入3.4的减速比, 且 30.0f 为水平时的编码器绝对角度
@@ -139,7 +143,7 @@ void GimbalTask()
         DJIMotorEnable(pitch_motor);
         DJIMotorChangeFeed(yaw_motor, ANGLE_LOOP, OTHER_FEED);
         DJIMotorChangeFeed(yaw_motor, SPEED_LOOP, OTHER_FEED);
-        DJIMotorChangeFeed(pitch_motor, ANGLE_LOOP, MOTOR_FEED);
+        DJIMotorChangeFeed(pitch_motor, ANGLE_LOOP, OTHER_FEED); // 由于在初始化硬绑定了angle_single_round，这里必须用OTHER_FEED
         DJIMotorChangeFeed(pitch_motor, SPEED_LOOP, MOTOR_FEED);
         DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw); // yaw和pitch会在robot_cmd中处理好多圈和单圈
         // PITCH 轴使用编码器位置环, 加入3.4的减速比, 且 30.0f 为水平时的编码器绝对角度
