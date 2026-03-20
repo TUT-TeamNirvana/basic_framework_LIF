@@ -348,15 +348,25 @@ static void MouseKeySet()
         // 获取新接口传入的自瞄数据
         InputData_t *vision_input = &vision_recv_data->input_data;
         
-        // 视觉有输出数据时，接管云台姿态
-        gimbal_cmd_send.yaw = vision_input->shoot_yaw;
-        gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+        // 【新增安全判断】：如果视觉的yaw和pitch都是0（说明没扫到目标或者掉线），那就用普通的鼠标操作
+        if (vision_input->shoot_yaw == 0.0f && vision_input->shoot_pitch == 0.0f)
+        {
+            gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
+            gimbal_cmd_send.pitch -= 0.01f * (float)rc_data[TEMP].mouse.y;
+            shoot_cmd_send.load_mode = LOAD_STOP; // 没目标停火
+        }
+        else
+        {
+            // 视觉有输出数据时，接管云台姿态
+            gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+            gimbal_cmd_send.pitch = vision_input->shoot_pitch;
 
-        // 根据视觉的开火指令控制开火
-        if (vision_input->fire == 1) {
-            shoot_cmd_send.load_mode = LOAD_1_BULLET; // 或 LOAD_BURSTFIRE 看你需求
-        } else {
-            shoot_cmd_send.load_mode = LOAD_STOP;
+            // 根据视觉的开火指令控制开火
+            if (vision_input->fire == 1) {
+                shoot_cmd_send.load_mode = LOAD_1_BULLET; // 或 LOAD_BURSTFIRE 看你需求
+            } else {
+                shoot_cmd_send.load_mode = LOAD_STOP;
+            }
         }
 
         // 限幅防疯车
