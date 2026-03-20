@@ -7,6 +7,7 @@
 #include "bsp_log.h"
 #include "bmi088.h"
 #include "master_process.h"
+#include "robot_vision.h"
 
 static attitude_t *gimba_IMU_data; // 云台IMU数据
 static DJIMotorInstance *yaw_motor, *pitch_motor;
@@ -16,7 +17,6 @@ static Gimbal_Upload_Data_s gimbal_feedback_data; // 回传给cmd的云台状态
 static Gimbal_Ctrl_Cmd_s gimbal_cmd_recv;         // 来自cmd的控制信息
 static Subscriber_t *chassis_sub;     // 底盘裁判系统数据订阅者
 static Chassis_Upload_Data_s chassis_refe_data; // 底盘裁判系统数据
-static Vision_Send_s vision_send_data; // 云台视觉数据 
 
 void GimbalInit()
 {
@@ -156,12 +156,14 @@ void GimbalTask()
     // 设置反馈数据,主要是imu和yaw的ecd
     gimbal_feedback_data.gimbal_imu_data = *gimba_IMU_data;
     gimbal_feedback_data.yaw_motor_single_round_angle = yaw_motor->measure.angle_single_round;
-    vision_send_data.sof = 'P';
-    vision_send_data.fire_times = 0;
-    vision_send_data.present_pitch = gimbal_feedback_data.gimbal_imu_data.Pitch;
-    vision_send_data.present_yaw = gimbal_feedback_data.gimbal_imu_data.Yaw;   
-    vision_send_data.reserved_slot = chassis_refe_data.robot_HP;
-    VisionSend(&vision_send_data);
+    
+    static VisionSendFrame_t vision_send_frame;
+    vision_send_frame.output_data.curr_pitch = gimbal_feedback_data.gimbal_imu_data.Pitch;
+    vision_send_frame.output_data.curr_yaw = gimbal_feedback_data.gimbal_imu_data.Yaw;
+    // 可以根据需要添加其他数据，比如敌方颜色等
+    // vision_send_frame.output_data.enemy_color = chassis_refe_data.enemy_color; 
+    
+    VisionSend(&vision_send_frame);
     // 推送消息
     PubPushMessage(gimbal_pub, (void *)&gimbal_feedback_data);
 }

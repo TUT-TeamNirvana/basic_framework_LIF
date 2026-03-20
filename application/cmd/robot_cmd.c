@@ -5,6 +5,7 @@
 #include "remote_control.h"
 #include "ins_task.h"
 #include "master_process.h"
+#include "robot_vision.h"
 #include "message_center.h"
 #include "general_def.h"
 #include "dji_motor.h"
@@ -30,8 +31,7 @@ static Chassis_Ctrl_Cmd_s chassis_cmd_send;      // 发送给底盘应用的信�
 static Chassis_Upload_Data_s chassis_fetch_data; // 从底盘应用接收的反馈信息信息,底盘功率枪口热量与底盘运动状态等
 
 static RC_ctrl_t *rc_data;              // 遥控器数据,初始化时返回
-static Vision_Recv_s *vision_recv_data; // 视觉接收数据指针,初始化时返回
-// static Vision_Send_s vision_send_data;  // 视觉发送数据
+static VisionRecvFrame_t *vision_recv_data; // 视觉接收数据指针,初始化时返回
 
 static Publisher_t *gimbal_cmd_pub;            // 云台控制消息发布者
 static Subscriber_t *gimbal_feed_sub;          // 云台反馈信息订阅者
@@ -50,7 +50,11 @@ static Robot_Status_e robot_state; // 机器人整体工作状态
 void RobotCMDInit()
 {
     rc_data = RemoteControlInit(&huart3);   // 修改为对应串口,注意如果是自研板dbus协议串口需选用添加了反相器的那个
-    //vision_recv_data = VisionInit(&huart1); // 视觉通信串口,2026.3.15更新，注释掉视觉，将接口留给图传链路
+#ifdef VISION_USE_VCP
+    vision_recv_data = VisionInit(NULL); // USB虚拟串口模式
+#else
+    vision_recv_data = VisionInit(&huart6); // 串口模式
+#endif
     extern void VTXControlInit(UART_HandleTypeDef *vtx_usart_handle);   //图传链路
     VTXControlInit(&huart1);    //图传链路串口配置
 
@@ -76,9 +80,6 @@ void RobotCMDInit()
     cmd_can_comm = CANCommInit(&comm_conf);
 #endif // GIMBAL_BOARD
     gimbal_cmd_send.pitch = 0;
-    vision_recv_data->ACTION_DATA.abs_pitch = 0;
-    vision_recv_data->ACTION_DATA.abs_yaw = 0;
-    vision_recv_data->ACTION_DATA.fire_times = 0;
     shoot_cmd_send.shoot_mode = SHOOT_OFF;
     shoot_cmd_send.load_mode = LOAD_STOP;
     shoot_cmd_send.lid_mode = LID_CLOSE;
@@ -175,9 +176,12 @@ static void RemoteControlSet()
     // 左侧开关状态为[下],遥控器控制下启动视觉调试
     if (switch_is_down(rc_data[TEMP].rc.switch_left))
     {
-        gimbal_cmd_send.yaw = vision_recv_data->ACTION_DATA.abs_yaw;
-        gimbal_cmd_send.pitch =vision_recv_data->ACTION_DATA.abs_pitch;
-        shoot_cmd_send.shoot_num = vision_recv_data->ACTION_DATA.fire_times;
+        // 使用新的视觉接收数据结构
+        InputData_t *vision_input = &vision_recv_data->input_data;
+
+        gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+        gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+        shoot_cmd_send.shoot_num = vision_input->fire;
         if (shoot_cmd_send.shoot_num == 1)
         {
             shoot_cmd_send.load_mode = LOAD_VISION;
@@ -185,27 +189,29 @@ static void RemoteControlSet()
         {
             shoot_cmd_send.load_mode = LOAD_STOP;
         }
-        
-        if (vision_recv_data->ACTION_DATA.reserved_slot / 10 == 2)
-        {
-            shoot_cmd_send.load_mode = LOAD_REVERSE;
-            shoot_cmd_send.shoot_rate = 4;
-            shoot_cmd_send.shoot_num = 0;
-        }
-
-        if (vision_recv_data->ACTION_DATA.reserved_slot % 10 == 2)
-        {
-            chassis_cmd_send.vy = 10000;
-             chassis_cmd_send.wz = 0;
-        }else if (vision_recv_data->ACTION_DATA.reserved_slot % 10 == 0)
-        {
-            chassis_cmd_send.vy = 0;
-            chassis_cmd_send.wz = 5000;
-        }else if (vision_recv_data->ACTION_DATA.reserved_slot % 10 == 1)
-        {
-            chassis_cmd_send.vy = -10000;
-            chassis_cmd_send.wz = 0;
-        }
+        // 注意：新的协议中没有 reserved_slot 字段
+        // 如果需要类似功能，需要在 InputData_t 中添加
+        // 这里暂时注释掉相关代码
+        // if (vision_recv_data->ACTION_DATA.reserved_slot / 10 == 2)
+        // {
+        //     shoot_cmd_send.load_mode = LOAD_REVERSE;
+        //     shoot_cmd_send.shoot_rate = 4;
+        //     shoot_cmd_send.shoot_num = 0;
+        // }
+        //
+        // if (vision_recv_data->ACTION_DATA.reserved_slot % 10 == 2)
+        // {
+        //     chassis_cmd_send.vy = 10000;
+        //      chassis_cmd_send.wz = 0;
+        // }else if (vision_recv_data->ACTION_DATA.reserved_slot % 10 == 0)
+        // {
+        //     chassis_cmd_send.vy = 0;
+        //     chassis_cmd_send.wz = 5000;
+        // }else if (vision_recv_data->ACTION_DATA.reserved_slot % 10 == 1)
+        // {
+        //     chassis_cmd_send.vy = -10000;
+        //     chassis_cmd_send.wz = 0;
+        // }
     } else {
         if (rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
         {
@@ -339,38 +345,23 @@ static void MouseKeySet()
 
     if (rc_data[TEMP].mouse.press_r == 1)
     {
-        // if (vision_recv_data->ACTION_DATA.abs_yaw == 0)
-        // {
-        //     gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].mouse.x;
-            
-        // }else if (vision_recv_data->ACTION_DATA.abs_pitch == 0)
-        // {
-        //     gimbal_cmd_send.pitch -= 0.001f * (float)rc_data[TEMP].mouse.y;
-        // }else{
-        //     gimbal_cmd_send.yaw = vision_recv_data->ACTION_DATA.abs_yaw;
-        //     gimbal_cmd_send.pitch =vision_recv_data->ACTION_DATA.abs_pitch;
-        // }
+        // 获取新接口传入的自瞄数据
+        InputData_t *vision_input = &vision_recv_data->input_data;
         
-   
-        // if (gimbal_cmd_send.pitch > 50)
-        // {
-        //     gimbal_cmd_send.pitch = 50;
-        // }
-        // if (gimbal_cmd_send.pitch < -20)
-        // {
-        //     gimbal_cmd_send.pitch = -20;
-        // }
-        //默认鼠标右键是开启视觉模式，但是目前没有视觉代码我把上面代码注释掉以防疯车
-        gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
-        gimbal_cmd_send.pitch -= 0.01f * (float)rc_data[TEMP].mouse.y;
-        if (gimbal_cmd_send.pitch > 50)
-        {
-            gimbal_cmd_send.pitch = 50;
+        // 视觉有输出数据时，接管云台姿态
+        gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+        gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+
+        // 根据视觉的开火指令控制开火
+        if (vision_input->fire == 1) {
+            shoot_cmd_send.load_mode = LOAD_1_BULLET; // 或 LOAD_BURSTFIRE 看你需求
+        } else {
+            shoot_cmd_send.load_mode = LOAD_STOP;
         }
-        if (gimbal_cmd_send.pitch < -20)
-        {
-            gimbal_cmd_send.pitch = -20;
-        }
+
+        // 限幅防疯车
+        if (gimbal_cmd_send.pitch > 50) gimbal_cmd_send.pitch = 50;
+        if (gimbal_cmd_send.pitch < -20) gimbal_cmd_send.pitch = -20;
     } else {
         gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
         gimbal_cmd_send.pitch -= 0.01f * (float)rc_data[TEMP].mouse.y;
@@ -580,12 +571,4 @@ void RobotCMDTask()
 #endif // GIMBAL_BOARD
     PubPushMessage(shoot_cmd_pub, (void *)&shoot_cmd_send);
     PubPushMessage(gimbal_cmd_pub, (void *)&gimbal_cmd_send);
-    // vision_send_data.sof = 'P';
-    // int send_pitch =  (int)(gimbal_fetch_data.gimbal_imu_data.Pitch*DEGREE_2_RAD*10000);
-    // int send_yaw =  (int)(gimbal_fetch_data.gimbal_imu_data.Yaw*DEGREE_2_RAD*10000);
-    // vision_send_data.present_pitch = (int16_t)(send_pitch>>16);
-    // vision_send_data.present_yaw = (int16_t)(send_yaw>>16);
-    // vision_send_data.present_debug_value = 0;
-    // vision_send_data.null_byte = 0;
-    // VisionSend(&vision_send_data);
 }

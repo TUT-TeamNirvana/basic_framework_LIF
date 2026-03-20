@@ -2,7 +2,7 @@
 #define MASTER_PROCESS_H
 
 #include "bsp_usart.h"
-// #include "seasky_protocol.h"
+#include "robot_vision.h"
 
 #define VISION_RECV_SIZE 18u // 当前为固定值,36字节
 #define VISION_SEND_SIZE 36u
@@ -38,25 +38,11 @@ typedef enum
 	BASE = 8
 } Target_Type_e;
 
-
 typedef enum
 {
     CRC_RIGHT=0,
     CRC_WRONG=1
-}CRC_STATE;
-
-typedef struct
-{
-	struct 
-	{
-    	char   sof             ;
-    	int8_t fire_times      ;
-    	float abs_pitch    ;
-    	float abs_yaw      ;
-    	int16_t reserved_slot  ;
-    	uint32_t crc_check     ;
-	}ACTION_DATA;
-} Vision_Recv_s;
+} CRC_STATE;
 
 typedef enum
 {
@@ -81,55 +67,25 @@ typedef enum
 	SMALL_AMU_18 = 18,
 	SMALL_AMU_30 = 30,
 } Bullet_Speed_e;
-
-typedef struct
-{
-    char sof;
-	int8_t fire_times;
-    float present_pitch;
-    float present_yaw;
-    int16_t reserved_slot;
-    uint32_t crc_value;
-} 
-Vision_Send_s;
 #pragma pack()
 
 /**
- * @brief 调用此函数初始化和视觉的串口通信
- *
- * @param handle 用于和视觉通信的串口handle(C板上一般为USART1,丝印为USART2,4pin)
+ * @brief 调用此函数初始化和视觉的通信（支持 UART/VCP）
+ * @param _handle 串口句柄（VCP 模式下传 NULL）
+ * @return 接收缓冲区指针
  */
-Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle);
+VisionRecvFrame_t* VisionInit(UART_HandleTypeDef *_handle);
 
 /**
  * @brief 发送视觉数据
- *
+ * @param tx_frame 待发送的数据帧
  */
-void VisionSend();
+void VisionSend(VisionSendFrame_t *tx_frame);
 
-// /**
-//  * @brief 设置视觉发送标志位
-//  *
-//  * @param enemy_color
-//  * @param work_mode
-//  * @param bullet_speed
-//  */
-// void VisionSetFlag(Enemy_Color_e enemy_color, Work_Mode_e work_mode, Bullet_Speed_e bullet_speed);
+/**
+ * @brief 获取从视觉接收的数据
+ * @return 接收帧指针
+ */
+VisionRecvFrame_t* VisionGetRecvData(void);
 
-// /**
-//  * @brief 设置发送数据的姿态部分
-//  *
-//  * @param yaw
-//  * @param pitch
-//  */
-// void VisionSetAltitude(float yaw, float pitch, float roll);
-
-extern void get_protocol_send_data(
-							uint8_t *tx_buf,			 // 待发送的原始数据	
-							Vision_Send_s *tx_data			 // 待发送的数据
-							);	 // 待发送的数据帧长度
-
-/*接收数据处理*/
-void get_protocol_info(uint8_t *rx_buf,			 // 接收到的原始数据
-						   Vision_Recv_s *rx_data);			 // 接收的float数据存储地址
 #endif // !MASTER_PROCESS_H
