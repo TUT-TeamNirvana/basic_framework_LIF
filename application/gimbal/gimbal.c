@@ -8,9 +8,11 @@
 #include "bmi088.h"
 #include "master_process.h"
 #include "robot_vision.h"
+#include <math.h>
 
 static attitude_t *gimba_IMU_data; // 云台IMU数据
 static DJIMotorInstance *yaw_motor, *pitch_motor;
+static float pitch_gravity_feedforward = 0.0f; //pitch前馈重力补偿
 static Publisher_t *gimbal_pub;                   // 云台应用消息发布者(云台反馈给cmd)
 static Subscriber_t *gimbal_sub;     // cmd控制消息订阅者
 static Gimbal_Upload_Data_s gimbal_feedback_data; // 回传给cmd的云台状态信息
@@ -67,16 +69,16 @@ void GimbalInit()
         .controller_param_init_config = {
             .angle_PID = {
                 .Kp = 10, // 10
-                .Ki = 0.5,
+                .Ki = 0.5,   // 直驱先将Ki设为0,后续只给非常小的值
                 .Kd = 0,
                 .DeadBand = 0.2,
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
-                .IntegralLimit = 100,
-                .MaxOut = 500,
+                .IntegralLimit = 500,
+                .MaxOut = 2500,
             },
             .speed_PID = {
                 .Kp = 15,  // 50
-                .Ki = 110, // 350
+                .Ki = 10,   // 直驱先将Ki设为0,后续视情况给
                 .Kd = 0,   // 0
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
                 .IntegralLimit = 2500,
@@ -85,13 +87,15 @@ void GimbalInit()
             .other_angle_feedback_ptr = &gimba_IMU_data->Pitch,
             // 还需要增加角速度额外反馈指针,注意方向,ins_task.md中有c板的bodyframe坐标系说明
             .other_speed_feedback_ptr = (&gimba_IMU_data->Gyro[0]),
+            .current_feedforward_ptr = &pitch_gravity_feedforward,
         },
         .controller_setting_init_config = {
-            .angle_feedback_source = MOTOR_FEED,
-            .speed_feedback_source = MOTOR_FEED,
+            .angle_feedback_source = OTHER_FEED,
+            .speed_feedback_source = OTHER_FEED,
             .outer_loop_type = ANGLE_LOOP,
             .close_loop_type = SPEED_LOOP | ANGLE_LOOP,
-            .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+            .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .feedforward_flag = CURRENT_FEEDFORWARD,
         },
         .motor_type = GM6020,
     };
@@ -131,7 +135,7 @@ void GimbalTask()
         DJIMotorChangeFeed(pitch_motor, SPEED_LOOP, MOTOR_FEED);
         DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw); // yaw和pitch会在robot_cmd中处理好多圈和单圈
         // PITCH 轴使用编码器位置环, 加入3.4的减速比, 且 30.0f 为水平时的编码器绝对角度
-        DJIMotorSetRef(pitch_motor, (gimbal_cmd_recv.pitch * 1.0f) + 30.0f);
+        DJIMotorSetRef(pitch_motor, (-gimbal_cmd_recv.pitch * 1.0f) + 10.0f);
         break;
     // 云台自由模式,使用编码器反馈,底盘和云台分离,仅云台旋转,一般用于调整云台姿态(英雄吊射等)/能量机关
     case GIMBAL_FREE_MODE: // 后续删除,或加入云台追地盘的跟随模式(响应速度更快)
@@ -143,7 +147,7 @@ void GimbalTask()
         DJIMotorChangeFeed(pitch_motor, SPEED_LOOP, MOTOR_FEED);
         DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw); // yaw和pitch会在robot_cmd中处理好多圈和单圈
         // PITCH 轴使用编码器位置环, 加入3.4的减速比, 且 30.0f 为水平时的编码器绝对角度
-        DJIMotorSetRef(pitch_motor, (gimbal_cmd_recv.pitch * 1.0f) + 30.0f);
+        DJIMotorSetRef(pitch_motor, (-gimbal_cmd_recv.pitch * 1.0f) + 10.0f);
         break;
     default:
         break;
@@ -151,7 +155,8 @@ void GimbalTask()
 
     // 在合适的地方添加pitch重力补偿前馈力矩
     // 根据IMU姿态/pitch电机角度反馈计算出当前配重下的重力矩
-    // ...
+    // 此处的 600.0f 为推测前馈值
+    pitch_gravity_feedforward = 600.0f * cosf(gimba_IMU_data->Pitch * 3.14159f / 180.0f);
 
     // 设置反馈数据,主要是imu和yaw的ecd
     gimbal_feedback_data.gimbal_imu_data = *gimba_IMU_data;
@@ -164,6 +169,8 @@ void GimbalTask()
     // vision_send_frame.output_data.enemy_color = chassis_refe_data.enemy_color; 
     
     VisionSend(&vision_send_frame);
+
+    //LOGINFO("Pitch ECD: %f | IMU: %f", pitch_motor->measure.angle_single_round, gimba_IMU_data->Pitch);
     // 推送消息
     PubPushMessage(gimbal_pub, (void *)&gimbal_feedback_data);
 }
