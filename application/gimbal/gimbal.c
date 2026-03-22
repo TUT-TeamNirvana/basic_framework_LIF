@@ -68,17 +68,17 @@ void GimbalInit()
         },
         .controller_param_init_config = {
             .angle_PID = {
-                .Kp = 10, // 10
-                .Ki = 0.5,   // 直驱先将Ki设为0,后续只给非常小的值
+                .Kp = 35, // 10
+                .Ki = 2,   // 直驱先将Ki设为0,后续只给非常小的值
                 .Kd = 0,
                 .DeadBand = 0.2,
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
                 .IntegralLimit = 500,
-                .MaxOut = 2500,
+                .MaxOut = 4500,
             },
             .speed_PID = {
-                .Kp = 15,  // 50
-                .Ki = 10,   // 直驱先将Ki设为0,后续视情况给
+                .Kp = 17,  // 50
+                .Ki = 15,   // 直驱先将Ki设为0,后续视情况给
                 .Kd = 0,   // 0
                 .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
                 .IntegralLimit = 2500,
@@ -156,7 +156,7 @@ void GimbalTask()
     // 在合适的地方添加pitch重力补偿前馈力矩
     // 根据IMU姿态/pitch电机角度反馈计算出当前配重下的重力矩
     // 此处的 600.0f 为推测前馈值
-    pitch_gravity_feedforward = 600.0f * cosf(gimba_IMU_data->Pitch * 3.14159f / 180.0f);
+    pitch_gravity_feedforward = 700.0f * cosf(gimba_IMU_data->Pitch * 3.14159f / 180.0f);
 
     // 设置反馈数据,主要是imu和yaw的ecd
     gimbal_feedback_data.gimbal_imu_data = *gimba_IMU_data;
@@ -171,6 +171,8 @@ void GimbalTask()
     VisionSend(&vision_send_frame);
 
     //LOGINFO("Pitch ECD: %f | IMU: %f", pitch_motor->measure.angle_single_round, gimba_IMU_data->Pitch);
+    LOGINFO("Yaw ECD: %d", yaw_motor->measure.ecd);
+
     // 推送消息
     PubPushMessage(gimbal_pub, (void *)&gimbal_feedback_data);
 }
