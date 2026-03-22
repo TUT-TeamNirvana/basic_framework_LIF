@@ -56,7 +56,7 @@ osThreadId defaultTaskHandle;
 
 void StartDefaultTask(void const * argument);
 
-extern void MX_USB_DEVICE_Init(void);
+//extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
@@ -123,7 +123,7 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void const * argument)
 {
   /* init code for USB_DEVICE */
-  MX_USB_DEVICE_Init();
+  //MX_USB_DEVICE_Init(); 虚拟串口初始化失败，现已移到main.c，并成功初始化
   /* USER CODE BEGIN StartDefaultTask */
   osThreadTerminate(NULL); // 避免空置和切换占用cpu
   /* USER CODE END StartDefaultTask */

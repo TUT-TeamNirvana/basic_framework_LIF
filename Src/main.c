@@ -120,7 +120,8 @@ int main(void)
   MX_CRC_Init();
   MX_DAC_Init();
   /* USER CODE BEGIN 2 */
-	RobotInit(); // 唯一的初始化函数
+  MX_USB_DEVICE_Init();
+	RobotInit(); // 唯一的初始化函数，虚拟串口初始化有bug，现已移植出来
   LOGINFO("[main] SystemInit() and RobotInit() done");
   /* USER CODE END 2 */
 
