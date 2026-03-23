@@ -173,7 +173,9 @@ static void CalcOffsetAngle()
 
 static void RemoteControlSet()
 {
-    
+    // 默认开启遥控器摇杆手动控制标志位
+    uint8_t use_manual_rocker = 1;
+
     // 控制底盘和云台运行模式,云台待添加,云台是否始终使用IMU数据?
     if (switch_is_mid(rc_data[TEMP].rc.switch_right)) // 右侧开关状态[中]或[上],底盘跟随云台
     {
@@ -190,42 +192,46 @@ static void RemoteControlSet()
         chassis_cmd_send.chassis_mode = CHASSIS_ROTATE;
         gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
     }
-    // 左侧开关状态为[下],遥控器控制下启动视觉调试
+    // 左侧开关状态为[下], 遥控器控制下启动视觉调试 (S挡自瞄)
     if (switch_is_down(rc_data[TEMP].rc.switch_left))
     {
-        // 使用新的视觉接收数据结构
+        // 确保视觉通信正常且有数据帧
         if (vision_recv != NULL)
         {
             InputData_t *vision_input = &vision_recv->input_data;
 
+            // 检查视觉是否有有效目标
             if (vision_input->shoot_yaw != 0.0f || vision_input->shoot_pitch != 0.0f)
             {
+                // 视觉接管云台姿态
                 gimbal_cmd_send.yaw = vision_input->shoot_yaw;
                 gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+
+                // 视觉接管开火
                 shoot_cmd_send.shoot_num = vision_input->fire;
-                if (shoot_cmd_send.shoot_num == 1)
-                {
+                if (shoot_cmd_send.shoot_num == 1) {
                     shoot_cmd_send.load_mode = LOAD_VISION;
-                }else if (shoot_cmd_send.shoot_num == 0)
-                {
+                } else if (shoot_cmd_send.shoot_num == 0) {
                     shoot_cmd_send.load_mode = LOAD_STOP;
                 }
-            } else
-            {
-                if (rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
-                {
-                    gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].rc.rocker_l_;
-                    gimbal_cmd_send.pitch += 0.001f * (float)rc_data[TEMP].rc.rocker_l1;
-                }
+
+                // 视觉接管成功，关闭手动摇杆控制云台
+                use_manual_rocker = 0;
             }
-        } else
-        {
-            if (rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
+            else
             {
-                gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].rc.rocker_l_;
-                gimbal_cmd_send.pitch += 0.001f * (float)rc_data[TEMP].rc.rocker_l1;
+                // 有视觉连接，但没扫到目标，强行停火
+                shoot_cmd_send.load_mode = LOAD_STOP;
             }
         }
+    }
+    else
+    {
+        // 左拨杆不在[下]（比如在[中]），必须确保不被视觉的遗留开火状态影响
+        if (shoot_cmd_send.load_mode == LOAD_VISION) {
+            shoot_cmd_send.load_mode = LOAD_STOP;
+        }
+    }
         // 注意：新的协议中没有 reserved_slot 字段
         // 如果需要类似功能，需要在 InputData_t 中添加
         // 这里暂时注释掉相关代码
@@ -249,8 +255,7 @@ static void RemoteControlSet()
         //     chassis_cmd_send.vy = -10000;
         //     chassis_cmd_send.wz = 0;
         // }
-    } else {
-        if (rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
+        if (use_manual_rocker == 1 && rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
         {
             gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].rc.rocker_l_;
             gimbal_cmd_send.pitch += 0.001f * (float)rc_data[TEMP].rc.rocker_l1;
@@ -266,10 +271,12 @@ static void RemoteControlSet()
         // 按照摇杆的输出大小进行角度增量,增益系数需调整
 
         // 底盘参数,目前没有加入小陀螺(调试似乎暂时没有必要),系数需要调整
-        chassis_cmd_send.vx = 100.0f * (float)rc_data[TEMP].rc.rocker_r_; // 右侧摇杆竖直方向控制x方向速度
-        chassis_cmd_send.vy = 100.0f * (float)rc_data[TEMP].rc.rocker_r1; // 右侧摇杆水平方向控制y方向速度
-
-    }
+        //(注意底盘控制不管有没有触发视觉，摇杆都始终可以控制底盘走位)
+        if (rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
+        {
+            chassis_cmd_send.vx = 100.0f * (float)rc_data[TEMP].rc.rocker_r_; // 右侧摇杆竖直方向控制x方向速度
+            chassis_cmd_send.vy = 100.0f * (float)rc_data[TEMP].rc.rocker_r1; // 右侧摇杆水平方向控制y方向速度
+        }
 
     // 摩擦轮控制,拨轮向上打为负,向下为正
     if (shoot_cmd_send.friction_mode == FRICTION_ON)
@@ -382,47 +389,62 @@ static void MouseKeySet()
 
     if (rc_data[TEMP].mouse.press_r == 1)
     {
-        // 获取新接口传入的自瞄数据
-        // 需要确保 vision_recv 不为 NULL 且有数据
-        if (vision_recv != NULL)
+        // 默认开启鼠标手动控制标志位
+        uint8_t use_manual_mouse = 1;
+
+        // 当按下鼠标右键时，尝试使用视觉自瞄
+        if (rc_data[TEMP].mouse.press_r == 1)
         {
-            InputData_t *vision_input = &vision_recv->input_data;
-
-            // 【新增安全判断】：如果视觉的yaw和pitch都是0（说明没扫到目标或者掉线），那就用普通的鼠标操作
-            if (vision_input->shoot_yaw == 0.0f && vision_input->shoot_pitch == 0.0f)
+            // 确保视觉通信正常且有数据帧
+            if (vision_recv != NULL)
             {
-                gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
-                gimbal_cmd_send.pitch += 0.01f * (float)rc_data[TEMP].mouse.y;
-                shoot_cmd_send.load_mode = LOAD_STOP; // 没目标停火
-            }
-            else
-            {
-                // 视觉有输出数据时，接管云台姿态
-                gimbal_cmd_send.yaw = vision_input->shoot_yaw;
-                gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+                InputData_t *vision_input = &vision_recv->input_data;
 
-                // 根据视觉的开火指令控制开火
-                if (vision_input->fire == 1) {
-                    shoot_cmd_send.load_mode = LOAD_1_BULLET; // 或 LOAD_BURSTFIRE 看你需求
-                } else {
+                // 检查视觉是否有有效目标（只要yaw和pitch不是纯0就认为扫到了目标）
+                if (vision_input->shoot_yaw != 0.0f || vision_input->shoot_pitch != 0.0f)
+                {
+                    // 视觉接管云台姿态
+                    gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+                    gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+
+                    // 视觉接管开火
+                    if (vision_input->fire == 1) {
+                        shoot_cmd_send.load_mode = LOAD_1_BULLET; // 视需求也可改为连发
+                    } else {
+                        shoot_cmd_send.load_mode = LOAD_STOP;
+                    }
+
+                    // 视觉接管成功，关闭手动鼠标控制
+                    use_manual_mouse = 0;
+                }
+                else
+                {
+                    // 视觉有数据传过来，但是全是0（目标丢失），强行停火
                     shoot_cmd_send.load_mode = LOAD_STOP;
                 }
             }
+        }
 
-            // 限幅防疯车
-            if (gimbal_cmd_send.pitch > 50) gimbal_cmd_send.pitch = 50;
-            if (gimbal_cmd_send.pitch < -20) gimbal_cmd_send.pitch = -20;
-        } else {
+        // ========== 姿态解算 ==========
+
+        // 如果没有按下右键，或者视觉没插上，或者按了右键但视觉没扫到目标
+        // 统一退回到常规鼠标控制
+        if (use_manual_mouse == 1)
+        {
             gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
             gimbal_cmd_send.pitch += 0.01f * (float)rc_data[TEMP].mouse.y;
-            if (gimbal_cmd_send.pitch > 50)
-            {
-                gimbal_cmd_send.pitch = 50;
-            }
-            if (gimbal_cmd_send.pitch < -20)
-            {
-                gimbal_cmd_send.pitch = -20;
-            }
+        }
+
+        // ========== 终极防疯车安全限幅 ==========
+
+        // 无论是视觉算出来的pitch，还是鼠标滑出来的pitch，绝不允许越界！
+        if (gimbal_cmd_send.pitch > 50)
+        {
+            gimbal_cmd_send.pitch = 50;
+        }
+        if (gimbal_cmd_send.pitch < -20)
+        {
+            gimbal_cmd_send.pitch = -20;
         }
     }
 
