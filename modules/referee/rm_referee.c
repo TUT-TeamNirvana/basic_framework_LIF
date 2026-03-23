@@ -43,12 +43,12 @@ static void JudgeReadData(uint8_t *buff)
 	if (buff[SOF] == REFEREE_SOF)
 	{
 		// 帧头CRC8校验
-		if (Verify_CRC8_Check_Sum(buff, LEN_HEADER) == TRUE)
+		if (verify_crc8_check_sum(buff, LEN_HEADER) == TRUE)
 		{
 			// 统计一帧数据长度(byte),用于CR16校验
 			judge_length = buff[DATA_LENGTH] + LEN_HEADER + LEN_CMDID + LEN_TAIL;
 			// 帧尾CRC16校验
-			if (Verify_CRC16_Check_Sum(buff, judge_length) == TRUE)
+			if (verify_crc16_check_sum(buff, judge_length) == TRUE)
 			{
 				// 2个8位拼成16位int
 				referee_info.CmdID = (buff[6] << 8 | buff[5]);

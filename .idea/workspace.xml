@@ -31,8 +31,17 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，pid调参">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季新熊猫，修复虚拟串口初始化失败的bug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/cmd/robot_cmd.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/cmd/robot_cmd.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/robot_def.h" beforeDir="false" afterPath="$PROJECT_DIR$/application/robot_def.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/robot_vision.h" beforeDir="false" afterPath="$PROJECT_DIR$/application/robot_vision.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/master_machine/master_process.h" beforeDir="false" afterPath="$PROJECT_DIR$/modules/master_machine/master_process.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/referee/crc_ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/crc_ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/referee/crc_ref.h" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/crc_ref.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/referee/referee_UI.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/referee_UI.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/referee/rm_referee.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/rm_referee.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,13 +57,42 @@
     <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/Src/freertos.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/Src/freertos.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/Src/main.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/Src/main.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/chassis/chassis.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/application/robot.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/robot_def.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/robot_def.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/robot_def.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/robot_vision.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/robot_vision.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/shoot/shoot.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/shoot/shoot.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/algorithm/controller.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/algorithm/controller.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/algorithm/controller.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/DJImotor/dji_motor.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/motor/DJImotor/dji_motor.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/servo_motor/servo_motor.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/referee/crc_ref.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/referee/crc_ref.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/referee/referee_UI.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/referee/rm_referee.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/remote/remote_control.c" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MakefileLocalSettings">
     <option name="projectSyncType">
@@ -139,6 +177,7 @@
       <workItem from="1773837457041" duration="2000" />
       <workItem from="1773920987940" duration="5092000" />
       <workItem from="1773983610297" duration="1995000" />
+      <workItem from="1774251364446" duration="2535000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />

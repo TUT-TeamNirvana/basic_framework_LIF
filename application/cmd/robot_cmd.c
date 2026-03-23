@@ -31,7 +31,8 @@ static Chassis_Ctrl_Cmd_s chassis_cmd_send;      // 发送给底盘应用的信�
 static Chassis_Upload_Data_s chassis_fetch_data; // 从底盘应用接收的反馈信息信息,底盘功率枪口热量与底盘运动状态等
 
 static RC_ctrl_t *rc_data;              // 遥控器数据,初始化时返回
-static VisionRecvFrame_t *vision_recv_data; // 视觉接收数据指针,初始化时返回
+static VisionRecvFrame_t *vision_recv; // 视觉返回的操作数据（视觉->电控）
+static VisionSendFrame_t vision_send;  // 发送给视觉的状态数据（电控->视觉）
 
 static Publisher_t *gimbal_cmd_pub;            // 云台控制消息发布者
 static Subscriber_t *gimbal_feed_sub;          // 云台反馈信息订阅者
@@ -51,10 +52,26 @@ void RobotCMDInit()
 {
     rc_data = RemoteControlInit(&huart3);   // 修改为对应串口,注意如果是自研板dbus协议串口需选用添加了反相器的那个
 #ifdef VISION_USE_VCP
-    vision_recv_data = VisionInit(NULL); // USB虚拟串口模式
+    vision_recv = VisionInit(NULL); // USB虚拟串口模式
 #else
     vision_recv_data = VisionInit(&huart6); // 串口模式
 #endif
+
+    // 初始化发送给视觉的数据帧
+    memset(&vision_send, 0, sizeof(VisionSendFrame_t));
+    vision_send.frame_header.sof = 0xA5;
+    vision_send.frame_header.crc8 = 0;
+
+    // 根据机器人类型初始化 OutputData（电控->视觉）
+    vision_send.output_data.config = 0;
+    vision_send.output_data.target_pose[0] = 0.0f;
+    vision_send.output_data.target_pose[1] = 0.0f;
+    vision_send.output_data.target_pose[2] = 0.0f;
+    vision_send.output_data.curr_yaw = 0.0f;
+    vision_send.output_data.curr_pitch = 0.0f;
+    vision_send.output_data.enemy_color = 1;  // 1=红色，0=蓝色，实际应该从裁判系统获取
+    vision_send.output_data.shoot_config = 0;
+
     extern void VTXControlInit(UART_HandleTypeDef *vtx_usart_handle);   //图传链路
     VTXControlInit(&huart1);    //图传链路串口配置
 
@@ -177,9 +194,9 @@ static void RemoteControlSet()
     if (switch_is_down(rc_data[TEMP].rc.switch_left))
     {
         // 使用新的视觉接收数据结构
-        if (vision_recv_data != NULL)
+        if (vision_recv != NULL)
         {
-            InputData_t *vision_input = &vision_recv_data->input_data;
+            InputData_t *vision_input = &vision_recv->input_data;
 
             if (vision_input->shoot_yaw != 0.0f || vision_input->shoot_pitch != 0.0f)
             {
@@ -366,42 +383,46 @@ static void MouseKeySet()
     if (rc_data[TEMP].mouse.press_r == 1)
     {
         // 获取新接口传入的自瞄数据
-        InputData_t *vision_input = &vision_recv_data->input_data;
-        
-        // 【新增安全判断】：如果视觉的yaw和pitch都是0（说明没扫到目标或者掉线），那就用普通的鼠标操作
-        if (vision_input->shoot_yaw == 0.0f && vision_input->shoot_pitch == 0.0f)
+        // 需要确保 vision_recv 不为 NULL 且有数据
+        if (vision_recv != NULL)
         {
-            gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
-            gimbal_cmd_send.pitch -= 0.01f * (float)rc_data[TEMP].mouse.y;
-            shoot_cmd_send.load_mode = LOAD_STOP; // 没目标停火
-        }
-        else
-        {
-            // 视觉有输出数据时，接管云台姿态
-            gimbal_cmd_send.yaw = vision_input->shoot_yaw;
-            gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+            InputData_t *vision_input = &vision_recv->input_data;
 
-            // 根据视觉的开火指令控制开火
-            if (vision_input->fire == 1) {
-                shoot_cmd_send.load_mode = LOAD_1_BULLET; // 或 LOAD_BURSTFIRE 看你需求
-            } else {
-                shoot_cmd_send.load_mode = LOAD_STOP;
+            // 【新增安全判断】：如果视觉的yaw和pitch都是0（说明没扫到目标或者掉线），那就用普通的鼠标操作
+            if (vision_input->shoot_yaw == 0.0f && vision_input->shoot_pitch == 0.0f)
+            {
+                gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
+                gimbal_cmd_send.pitch += 0.01f * (float)rc_data[TEMP].mouse.y;
+                shoot_cmd_send.load_mode = LOAD_STOP; // 没目标停火
             }
-        }
+            else
+            {
+                // 视觉有输出数据时，接管云台姿态
+                gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+                gimbal_cmd_send.pitch = vision_input->shoot_pitch;
 
-        // 限幅防疯车
-        if (gimbal_cmd_send.pitch > 50) gimbal_cmd_send.pitch = 50;
-        if (gimbal_cmd_send.pitch < -20) gimbal_cmd_send.pitch = -20;
-    } else {
-        gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
-        gimbal_cmd_send.pitch -= 0.01f * (float)rc_data[TEMP].mouse.y;
-        if (gimbal_cmd_send.pitch > 50)
-        {
-            gimbal_cmd_send.pitch = 50;
-        }
-        if (gimbal_cmd_send.pitch < -20)
-        {
-            gimbal_cmd_send.pitch = -20;
+                // 根据视觉的开火指令控制开火
+                if (vision_input->fire == 1) {
+                    shoot_cmd_send.load_mode = LOAD_1_BULLET; // 或 LOAD_BURSTFIRE 看你需求
+                } else {
+                    shoot_cmd_send.load_mode = LOAD_STOP;
+                }
+            }
+
+            // 限幅防疯车
+            if (gimbal_cmd_send.pitch > 50) gimbal_cmd_send.pitch = 50;
+            if (gimbal_cmd_send.pitch < -20) gimbal_cmd_send.pitch = -20;
+        } else {
+            gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
+            gimbal_cmd_send.pitch += 0.01f * (float)rc_data[TEMP].mouse.y;
+            if (gimbal_cmd_send.pitch > 50)
+            {
+                gimbal_cmd_send.pitch = 50;
+            }
+            if (gimbal_cmd_send.pitch < -20)
+            {
+                gimbal_cmd_send.pitch = -20;
+            }
         }
     }
 

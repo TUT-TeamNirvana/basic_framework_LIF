@@ -19,6 +19,8 @@ static Gimbal_Upload_Data_s gimbal_feedback_data; // 回传给cmd的云台状态
 static Gimbal_Ctrl_Cmd_s gimbal_cmd_recv;         // 来自cmd的控制信息
 static Subscriber_t *chassis_sub;     // 底盘裁判系统数据订阅者
 static Chassis_Upload_Data_s chassis_refe_data; // 底盘裁判系统数据
+static VisionSendFrame_t vision_send_frame; // 云台视觉发送数据帧（新协议）
+
 
 void GimbalInit()
 {
@@ -162,12 +164,17 @@ void GimbalTask()
     gimbal_feedback_data.gimbal_imu_data = *gimba_IMU_data;
     gimbal_feedback_data.yaw_motor_single_round_angle = yaw_motor->measure.angle_single_round;
     
-    static VisionSendFrame_t vision_send_frame;
-    vision_send_frame.output_data.curr_pitch = gimbal_feedback_data.gimbal_imu_data.Pitch;
+    // 更新发送给视觉的数据（每个周期都更新）
+    vision_send_frame.frame_header.sof = 0xA5;  // 帧头
     vision_send_frame.output_data.curr_yaw = gimbal_feedback_data.gimbal_imu_data.Yaw;
-    // 可以根据需要添加其他数据，比如敌方颜色等
-    // vision_send_frame.output_data.enemy_color = chassis_refe_data.enemy_color; 
-    
+    vision_send_frame.output_data.curr_pitch = gimbal_feedback_data.gimbal_imu_data.Pitch;
+    // 如果需要，还可以更新其他字段
+    // vision_send_frame.output_data.enemy_color = chassis_refe_data.enemy_color;
+    // vision_send_frame.output_data.shoot_config = 某个弹速值;
+    // vision_send_frame.output_data.target_pose[0] = 0.0f;
+    // vision_send_frame.output_data.target_pose[1] = 0.0f;
+    // vision_send_frame.output_data.target_pose[2] = 0.0f;
+
     VisionSend(&vision_send_frame);
 
     //LOGINFO("Pitch ECD: %f | IMU: %f", pitch_motor->measure.angle_single_round, gimba_IMU_data->Pitch);

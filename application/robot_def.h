@@ -124,6 +124,18 @@ typedef enum
     LOAD_VISION,    // 视觉发射
 } loader_mode_e;
 
+// 改动视觉将此枚举从master_process.h中迁移至此
+// 添加弹速枚举定义
+typedef enum
+{
+    BULLET_SPEED_NONE = 0,
+    BIG_AMU_10 = 10,
+    SMALL_AMU_15 = 15,
+    BIG_AMU_16 = 16,
+    SMALL_AMU_18 = 18,
+    SMALL_AMU_30 = 30,
+} Bullet_Speed_e;
+
 // 功率限制,从裁判系统获取,是否有必要保留?
 typedef struct
 { // 功率控制
