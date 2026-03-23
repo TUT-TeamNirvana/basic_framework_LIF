@@ -166,8 +166,8 @@ void GimbalTask()
     
     // 更新发送给视觉的数据（每个周期都更新）
     vision_send_frame.frame_header.sof = 0xA5;  // 帧头
-    vision_send_frame.output_data.curr_yaw = gimbal_feedback_data.gimbal_imu_data.Yaw;
-    vision_send_frame.output_data.curr_pitch = gimbal_feedback_data.gimbal_imu_data.Pitch;
+    vision_send_frame.output_data.curr_yaw = gimbal_feedback_data.gimbal_imu_data.Yaw * 0.0174532925f;
+    vision_send_frame.output_data.curr_pitch = gimbal_feedback_data.gimbal_imu_data.Pitch * 0.0174532925f;
     // 如果需要，还可以更新其他字段
     // vision_send_frame.output_data.enemy_color = chassis_refe_data.enemy_color;
     // vision_send_frame.output_data.shoot_config = 某个弹速值;
@@ -178,7 +178,7 @@ void GimbalTask()
     VisionSend(&vision_send_frame);
 
     //LOGINFO("Pitch ECD: %f | IMU: %f", pitch_motor->measure.angle_single_round, gimba_IMU_data->Pitch);
-    LOGINFO("Yaw ECD: %d", yaw_motor->measure.ecd);
+    //LOGINFO("Yaw ECD: %d", yaw_motor->measure.ecd);
 
     // 推送消息
     PubPushMessage(gimbal_pub, (void *)&gimbal_feedback_data);

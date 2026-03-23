@@ -110,6 +110,8 @@ static uint8_t unpack_recv_frame(uint8_t *rx_buff, VisionRecvFrame_t *frame)
  */
 static void VisionOfflineCallback(void *id)
 {
+    // 清除过期视觉数据，防止拨到S挡时受残留指令影响导致云台回正或不可控
+    memset(&recv_frame, 0, sizeof(VisionRecvFrame_t));
 #ifdef VISION_USE_UART
     USARTServiceInit(vision_usart);
     LOGWARNING("[Vision] offline, restart UART communication");
@@ -204,10 +206,18 @@ void VisionSend(VisionSendFrame_t *tx_frame)
 static void DecodeVision(uint16_t len)
 {
     UNUSED(len);  // 不使用该参数，因为数据已经在全局缓冲区 vis_recv_buff 中
-
+    //LOGINFO("RX len: %d", len);
+    /*LOGINFO("RX HEX: %02X %02X %02X %02X %02X %02X",
+           vis_recv_buff[0], vis_recv_buff[1], vis_recv_buff[2],
+           vis_recv_buff[3], vis_recv_buff[4], vis_recv_buff[5]);*/
     // 从 USB 接收缓冲区解包数据
     // 注意：视觉端发送时没有加\n，所以直接解包 sizeof(VisionRecvFrame_t) 字节
-    unpack_recv_frame(vis_recv_buff, &recv_frame);
+     uint8_t result = unpack_recv_frame(vis_recv_buff, &recv_frame);
+    if (result == 0) {
+        DaemonReload(vision_daemon);  // 数据正确，回传给进程守护
+    } else {
+        LOGWARNING("[Vision VCP] Frame error: %d", result);
+    }
 }
 
 
@@ -230,7 +240,7 @@ VisionRecvFrame_t* VisionInit(UART_HandleTypeDef *_handle)
     Daemon_Init_Config_s daemon_conf = {
         .callback = VisionOfflineCallback,
         .owner_id = NULL,  // VCP 没有 USARTInstance
-        .reload_count = 10,
+        .reload_count = 50,
     };
     vision_daemon = DaemonRegister(&daemon_conf);
 

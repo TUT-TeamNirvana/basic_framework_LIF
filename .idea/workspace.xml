@@ -31,17 +31,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季新熊猫，修复虚拟串口初始化失败的bug">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季新熊猫，视觉自瞄控制逻辑优化，防止突然断掉minipc出现疯车问题">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/usbd_cdc_if.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/usbd_cdc_if.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/cmd/robot_cmd.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/cmd/robot_cmd.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/robot_def.h" beforeDir="false" afterPath="$PROJECT_DIR$/application/robot_def.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/robot_vision.h" beforeDir="false" afterPath="$PROJECT_DIR$/application/robot_vision.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/master_machine/master_process.h" beforeDir="false" afterPath="$PROJECT_DIR$/modules/master_machine/master_process.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/referee/crc_ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/crc_ref.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/referee/crc_ref.h" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/crc_ref.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/referee/referee_UI.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/referee_UI.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/referee/rm_referee.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/rm_referee.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/master_machine/master_process.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/master_machine/master_process.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,10 +56,17 @@
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/Src/freertos.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/Src/main.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/Src/main.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/Src/usbd_cdc_if.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/Src/usbd_cdc_if.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/chassis/chassis.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/chassis/chassis.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
@@ -83,9 +85,13 @@
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/algorithm/controller.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/master_machine/master_process.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/DJImotor/dji_motor.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/motor/DJImotor/dji_motor.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/motor/DJImotor/dji_motor.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/motor/DJImotor/dji_motor.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/servo_motor/servo_motor.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF/modules/referee/crc_ref.c" root0="SKIP_HIGHLIGHTING" />
@@ -177,7 +183,7 @@
       <workItem from="1773837457041" duration="2000" />
       <workItem from="1773920987940" duration="5092000" />
       <workItem from="1773983610297" duration="1995000" />
-      <workItem from="1774251364446" duration="2535000" />
+      <workItem from="1774251364446" duration="21059000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -275,7 +281,23 @@
       <option name="project" value="LOCAL" />
       <updated>1773984391394</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="2026赛季新熊猫，修复视觉对接crc校验接口bug">
+      <option name="closed" value="true" />
+      <created>1774254115990</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1774254115990</updated>
+    </task>
+    <task id="LOCAL-00014" summary="2026赛季新熊猫，视觉自瞄控制逻辑优化，防止突然断掉minipc出现疯车问题">
+      <option name="closed" value="true" />
+      <created>1774256260222</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1774256260222</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -309,6 +331,8 @@
     <MESSAGE value="2026赛季熊猫，尝试修改pid，并将云台的pid改为位置环" />
     <MESSAGE value="2026赛季熊猫，pid改进算法，摩擦轮调参" />
     <MESSAGE value="2026赛季熊猫，pid调参" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，pid调参" />
+    <MESSAGE value="2026赛季新熊猫，修复视觉对接crc校验接口bug" />
+    <MESSAGE value="2026赛季新熊猫，视觉自瞄控制逻辑优化，防止突然断掉minipc出现疯车问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季新熊猫，视觉自瞄控制逻辑优化，防止突然断掉minipc出现疯车问题" />
   </component>
 </project>

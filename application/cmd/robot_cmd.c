@@ -12,6 +12,7 @@
 // bsp
 #include "bsp_dwt.h"
 #include "bsp_log.h"
+#include <math.h>
 
 // 私有宏,自动将编码器转换成角度值
 #define YAW_ALIGN_ANGLE (YAW_CHASSIS_ALIGN_ECD * ECD_ANGLE_COEF_DJI) // 对齐时的角度,0-360
@@ -204,8 +205,23 @@ static void RemoteControlSet()
             if (vision_input->shoot_yaw != 0.0f || vision_input->shoot_pitch != 0.0f)
             {
                 // 视觉接管云台姿态
-                gimbal_cmd_send.yaw = vision_input->shoot_yaw;
-                gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+                //gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+                //gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+
+                // 1. 视觉发送的是世界坐标系下的绝对角度（弧度制），先转换为角度制
+                float target_yaw_deg = vision_input->shoot_yaw * 57.2957795f;
+
+                // 2. C板的 gimbal_cmd_send.yaw 是连续的多圈角度，需要计算最短路径偏差（避免360度乱甩和倒卷）
+                float yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
+                while (yaw_error > 180.0f) yaw_error -= 360.0f;
+                while (yaw_error <= -180.0f) yaw_error += 360.0f;
+
+                // 3. 将最短路径偏差累加上去
+                gimbal_cmd_send.yaw += yaw_error;
+
+                // Pitch轴由于不会跨越360度，直接赋值即可
+                gimbal_cmd_send.pitch = vision_input->shoot_pitch * 57.2957795f;
+
 
                 // 视觉接管开火
                 shoot_cmd_send.shoot_num = vision_input->fire;
@@ -404,8 +420,23 @@ static void MouseKeySet()
                 if (vision_input->shoot_yaw != 0.0f || vision_input->shoot_pitch != 0.0f)
                 {
                     // 视觉接管云台姿态
-                    gimbal_cmd_send.yaw = vision_input->shoot_yaw;
-                    gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+                    //gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+                    //gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+
+                    // 1. 视觉发送的是世界坐标系下的绝对角度（弧度制），先转换为角度制
+                    float target_yaw_deg = vision_input->shoot_yaw * 57.2957795f;
+
+                    // 2. C板的 gimbal_cmd_send.yaw 是连续的多圈角度，需要计算最短路径偏差（避免360度乱甩和倒卷）
+                    float yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
+                    while (yaw_error > 180.0f) yaw_error -= 360.0f;
+                    while (yaw_error <= -180.0f) yaw_error += 360.0f;
+
+                    // 3. 将最短路径偏差累加上去
+                    gimbal_cmd_send.yaw += yaw_error;
+
+                    // Pitch轴由于不会跨越360度，直接赋值即可
+                    gimbal_cmd_send.pitch = vision_input->shoot_pitch * 57.2957795f;
+
 
                     // 视觉接管开火
                     if (vision_input->fire == 1) {
@@ -627,6 +658,9 @@ void RobotCMDTask()
         if (switch_is_mid(rc_data[TEMP].rc.switch_right) && rc_data[TEMP].rc.dial > 200)
         {
             shoot_cmd_send.lid_mode = LID_CLOSE;
+        }
+        if (vision_recv != NULL) {
+            LOGINFO("Vision Pitch: %f, Yaw: %f", vision_recv->input_data.shoot_pitch, vision_recv->input_data.shoot_yaw);
         }
     }
     EmergencyHandler(); // 处理模块离线和遥控器急停等紧急情况
