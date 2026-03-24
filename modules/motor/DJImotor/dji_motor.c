@@ -10,6 +10,10 @@
 #include "power_meter.h"
 power_meter_data_t *get_power_data;
 // PIDInstance *power_pid_;
+// 新增：专供 HSS 读波的全局变量
+__attribute__((used)) volatile float hss_predict_power = 0.0f;  // 预测功率
+__attribute__((used)) volatile float hss_real_power = 0.0f;     // 真实功率
+__attribute__((used)) volatile float hss_limit_power = 0.0f;    // 限制阈值
 
 static uint8_t idx = 0; // register idx,是该文件的全局电机索引,在注册时使用
 /* DJI电机的实例,此处仅保存指针,内存的分配将通过电机实例初始化时通过malloc()进行 */
@@ -352,10 +356,10 @@ void DJIMotorControl()
 
                 // 2. 根据M3508的电磁和机械损耗模型估算功率
                 // 此处参数可先用经典经验值，后续可接INA226重新测量拟合
-                float k1 = 0.001f;    // 机械阻力损耗系数 (与转速成正比)
-                float k2 = 0.00000005f;// 铜损系数 (与电流的平方成正比，根据M3508参数估算)
-                float k3 = 5.0f;      // 系统静态损耗 (待机功率)
-                float k_T = 0.00005f;  // 力矩常数 (将PID输出映射为有效做功系数)
+                float k1 = 0.000045f;    // 机械阻力损耗系数 (与转速成正比)
+                float k2 = 0.00000085f;// 铜损系数 (与电流的平方成正比，根据M3508参数估算)
+                float k3 = 15.5f;      // 系统静态损耗 (待机功率)
+                float k_T = 0.000002f;  // 力矩常数 (将PID输出映射为有效做功系数)
 
                 float P_cmd = k3;
                 for (int m = 0; m < 4; m++) {
@@ -423,6 +427,11 @@ void DJIMotorControl()
                 // 用 RTT 同时打印出：预测功率、真实功率、限制阈值
                 // 在 J-Scope 里看这三条曲线是否完全贴合！
                 RTT_PrintWave_np(3, (double)P_cmd, (double)real_power, (double)max_power);
+
+                //DAPLink HSS 上位机用的全局变量赋值
+                hss_predict_power = P_cmd;
+                hss_real_power = real_power;
+                hss_limit_power = max_power;
                 // =================================================================================
 
                 sender_assignment[i].tx_buff[0] = (uint8_t)(motor1rf_set>>8);
