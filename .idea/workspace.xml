@@ -31,12 +31,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，尝试接入传统视觉">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，尝试接入传统视觉，中断回调bug修复">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/cmd/robot_cmd.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/cmd/robot_cmd.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/master_machine/master_process.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/master_machine/master_process.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/motor/DJImotor/dji_motor.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/motor/DJImotor/dji_motor.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/referee/rm_referee.c" beforeDir="false" afterPath="$PROJECT_DIR$/modules/referee/rm_referee.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +49,7 @@
     <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF_white/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF_white/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF_white/application/gimbal/gimbal.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/application/robot.c" root0="FORCE_HIGHLIGHTING" />
@@ -294,7 +292,7 @@
       <workItem from="1774372237672" duration="199000" />
       <workItem from="1774373883972" duration="1000" />
       <workItem from="1774376382005" duration="22067000" />
-      <workItem from="1774413968687" duration="4519000" />
+      <workItem from="1774413968687" duration="11828000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -416,7 +414,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774415340774</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="2026赛季熊猫，尝试接入传统视觉，中断回调bug修复">
+      <option name="closed" value="true" />
+      <created>1774419071472</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1774419071472</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -453,6 +459,7 @@
     <MESSAGE value="2026赛季新熊猫，修复视觉对接crc校验接口bug" />
     <MESSAGE value="2026赛季新熊猫，视觉自瞄控制逻辑优化，防止突然断掉minipc出现疯车问题" />
     <MESSAGE value="2026赛季熊猫，尝试接入传统视觉" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，尝试接入传统视觉" />
+    <MESSAGE value="2026赛季熊猫，尝试接入传统视觉，中断回调bug修复" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，尝试接入传统视觉，中断回调bug修复" />
   </component>
 </project>

@@ -177,6 +177,20 @@ static void CalcOffsetAngle()
 // }
 
 /**
+ * @brief 将浮点数拆分为整数部分和两位小数部分（用于不支持%f的printf）
+ * @param value 输入的浮点数
+ * @param int_part 输出的整数部分指针
+ * @param frac_part 输出的小数部分指针（总为正数，范围0-99）
+ */
+
+static void float_to_parts(float value, int32_t *int_part, int32_t *frac_part) {
+    // 放大1000倍并转换为整数（实现四舍五入）
+    int32_t scaled = (int32_t)(value * 1000.0f + (value < 0 ? -0.5f : 0.5f));
+    *int_part = scaled / 1000;
+    *frac_part = (scaled < 0 ? -scaled : scaled) % 1000; // 小数部分始终取正
+}
+
+/**
  * @brief 控制输入为遥控器(调试时)的模式和控制量设置
  *
  */
@@ -216,21 +230,30 @@ static void RemoteControlSet()
             static uint32_t debug_count = 0;
             if ((debug_count++ % 100) == 0)  // 每100次循环打印一次，避免日志过多
             {
+                int32_t y_int, y_frac, p_int, p_frac;
+                int32_t x_int, x_frac, y_coord_int, y_coord_frac, z_int, z_frac;
+
+                // 将弧度转换为角度
+                float yaw_deg = vision_control.gimbal_vision_control.gimbal_yaw * 57.2957795f;
+                float pitch_deg = vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f;
+
+                // 分离整数和小数部分
+                float_to_parts(yaw_deg, &y_int, &y_frac);
+                float_to_parts(pitch_deg, &p_int, &p_frac);
+                float_to_parts(vision_control.target_data.x, &x_int, &x_frac);
+                float_to_parts(vision_control.target_data.y, &y_coord_int, &y_coord_frac);
+                float_to_parts(vision_control.target_data.z, &z_int, &z_frac);
+
                 LOGINFO("Vision State Debug:");
-                LOGINFO("  target_appear_state = %d (0=未出现, 1=已出现)", 
-                        vision_control.vision_target_appear_state);
-                /*LOGINFO("  gimbal_yaw = %.6f rad (%.2f deg)",
-                        vision_control.gimbal_vision_control.gimbal_yaw,
-                        vision_control.gimbal_vision_control.gimbal_yaw * 57.2957795f);
-                LOGINFO("  gimbal_pitch = %.6f rad (%.2f deg)", 
-                        vision_control.gimbal_vision_control.gimbal_pitch,
-                        vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f);*/
-                LOGINFO("  receive_state = %d", 
-                        vision_control.vision_receive_point->receive_state);
-                /*LOGINFO("  target_data.x/y/z = %.2f/%.2f/%.2f",
-                        vision_control.target_data.x,
-                        vision_control.target_data.y,
-                        vision_control.target_data.z);*/
+                LOGINFO("  appear_state = %d", vision_control.vision_target_appear_state);
+
+                LOGINFO("  yaw   = %s%d.%03d deg", (yaw_deg < 0 ? "-" : ""), (y_int < 0 ? -y_int : y_int), y_frac);
+                LOGINFO("  pitch = %s%d.%03d deg", (pitch_deg < 0 ? "-" : ""), (p_int < 0 ? -p_int : p_int), p_frac);
+
+                LOGINFO("  target_xyz = %s%d.%03d / %s%d.%03d / %s%d.%03d",
+                        (vision_control.target_data.x < 0 ? "-" : ""), (x_int < 0 ? -x_int : x_int), x_frac,
+                        (vision_control.target_data.y < 0 ? "-" : ""), (y_coord_int < 0 ? -y_coord_int : y_coord_int), y_coord_frac,
+                        (vision_control.target_data.z < 0 ? "-" : ""), (z_int < 0 ? -z_int : z_int), z_frac);
             }
 
 //            vision_control.gimbal_vision_control.gimbal_pitch;//rad
@@ -241,7 +264,7 @@ static void RemoteControlSet()
 
 
             // 检查视觉是否有有效目标
-            if (vision_control.gimbal_vision_control.gimbal_yaw != 0.0f || vision_control.gimbal_vision_control.gimbal_pitch != 0.0f)
+            if (vision_control.vision_target_appear_state == 1)
             {
                 // 视觉接管云台姿态
                 //gimbal_cmd_send.yaw = vision_input->shoot_yaw;
@@ -258,8 +281,10 @@ static void RemoteControlSet()
                 // 3. 将最短路径偏差累加上去
                 gimbal_cmd_send.yaw += yaw_error;
 
+                float gimbal_cmd_send_AAAA = 0 ;
+
                 // Pitch轴由于不会跨越360度，直接赋值即可
-                gimbal_cmd_send.pitch = vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f;
+                gimbal_cmd_send.pitch = 15 + vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f; //15度为机械补偿角度
 
                 InputData_t *vision_input = &vision_recv->input_data;
 //                // 视觉接管开火
