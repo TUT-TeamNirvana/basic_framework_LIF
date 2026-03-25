@@ -19,6 +19,7 @@ static Subscriber_t *chassis_sub;
 static Chassis_Upload_Data_s chassis_data; // 来自底盘的底盘信息
 
 
+
 // dwt定时,计算冷却用
 static float hibernate_time = 0, dead_time = 0;
 int8_t stop_flag = 0;
@@ -137,6 +138,8 @@ void ShootTask()
         DJIMotorEnable(loader);
     }
     // 根据收到的弹速设置设定摩擦轮电机参考值,需实测后填入
+
+//    shoot_cmd_recv_vision_psy = shoot_cmd_recv.bullet_speed ;
     switch (shoot_cmd_recv.bullet_speed)
     {
     case BULLET_SPEED_NONE:

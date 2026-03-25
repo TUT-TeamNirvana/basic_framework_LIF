@@ -347,3 +347,13 @@ void EularAngleToQuaternion(float Yaw, float Pitch, float Roll, float *q)
     q[2] = sinPitch * cosRoll * sinYaw + cosPitch * sinRoll * cosYaw;
     q[3] = cosPitch * cosRoll * sinYaw - sinPitch * sinRoll * cosYaw;
 }
+
+/**
+ * @brief 获取惯导系统结构体指针
+ *
+ * @return INS_t* 惯导系统结构体指针
+ */
+INS_t* get_INS_point(void)
+{
+    return &INS;
+}

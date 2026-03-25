@@ -9,6 +9,13 @@
 #include "message_center.h"
 #include "general_def.h"
 #include "dji_motor.h"
+#include "master_process.h"
+
+// ========== 视觉控制结构体声明 ==========
+extern vision_control_t vision_control;  // 从 master_process.c 获取 (line_420___psy)
+//extern vision_receive_t vision_receive;
+
+
 // bsp
 #include "bsp_dwt.h"
 #include "bsp_log.h"
@@ -46,6 +53,8 @@ static Shoot_Ctrl_Cmd_s shoot_cmd_send;      // 传递给发射的控制信息
 static Shoot_Upload_Data_s shoot_fetch_data; // 从发射获取的反馈信息
 
 static Robot_Status_e robot_state; // 机器人整体工作状态
+
+bool auto_robot = 1 ; //1-哨兵
 
 
 
@@ -196,20 +205,50 @@ static void RemoteControlSet()
     // 左侧开关状态为[下], 遥控器控制下启动视觉调试 (S挡自瞄)
     if (switch_is_down(rc_data[TEMP].rc.switch_left))
     {
-        // 确保视觉通信正常且有数据帧
-        if (vision_recv != NULL)
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////-----psy_vision
+///////////////////////////////////////////////////////////////////////
+                // 确保视觉通信正常且有数据帧
+        if (1)
         {
-            InputData_t *vision_input = &vision_recv->input_data;
+            // ========== 调试日志：检查视觉状态 ==========
+            static uint32_t debug_count = 0;
+            if ((debug_count++ % 100) == 0)  // 每100次循环打印一次，避免日志过多
+            {
+                LOGINFO("Vision State Debug:");
+                LOGINFO("  target_appear_state = %d (0=未出现, 1=已出现)", 
+                        vision_control.vision_target_appear_state);
+                /*LOGINFO("  gimbal_yaw = %.6f rad (%.2f deg)",
+                        vision_control.gimbal_vision_control.gimbal_yaw,
+                        vision_control.gimbal_vision_control.gimbal_yaw * 57.2957795f);
+                LOGINFO("  gimbal_pitch = %.6f rad (%.2f deg)", 
+                        vision_control.gimbal_vision_control.gimbal_pitch,
+                        vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f);*/
+                LOGINFO("  receive_state = %d", 
+                        vision_control.vision_receive_point->receive_state);
+                /*LOGINFO("  target_data.x/y/z = %.2f/%.2f/%.2f",
+                        vision_control.target_data.x,
+                        vision_control.target_data.y,
+                        vision_control.target_data.z);*/
+            }
+
+//            vision_control.gimbal_vision_control.gimbal_pitch;//rad
+//            vision_control.gimbal_vision_control.gimbal_yaw;
+//            vision_control.vision_target_appear_state;     //0-no,1-yes
+//            vision_control.shoot_vision_control.shoot_command;         //0-attack_fire,1-ready_attack,2-stop_attack
+
+
 
             // 检查视觉是否有有效目标
-            if (vision_input->shoot_yaw != 0.0f || vision_input->shoot_pitch != 0.0f)
+            if (vision_control.gimbal_vision_control.gimbal_yaw != 0.0f || vision_control.gimbal_vision_control.gimbal_pitch != 0.0f)
             {
                 // 视觉接管云台姿态
                 //gimbal_cmd_send.yaw = vision_input->shoot_yaw;
                 //gimbal_cmd_send.pitch = vision_input->shoot_pitch;
 
                 // 1. 视觉发送的是世界坐标系下的绝对角度（弧度制），先转换为角度制
-                float target_yaw_deg = vision_input->shoot_yaw * 57.2957795f;
+                float target_yaw_deg = vision_control.gimbal_vision_control.gimbal_yaw * 57.2957795f;
 
                 // 2. C板的 gimbal_cmd_send.yaw 是连续的多圈角度，需要计算最短路径偏差（避免360度乱甩和倒卷）
                 float yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
@@ -220,16 +259,28 @@ static void RemoteControlSet()
                 gimbal_cmd_send.yaw += yaw_error;
 
                 // Pitch轴由于不会跨越360度，直接赋值即可
-                gimbal_cmd_send.pitch = vision_input->shoot_pitch * 57.2957795f;
+                gimbal_cmd_send.pitch = vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f;
+
+                InputData_t *vision_input = &vision_recv->input_data;
+//                // 视觉接管开火
+//                shoot_cmd_send.shoot_num = vision_control.shoot_vision_control;
 
 
-                // 视觉接管开火
-                shoot_cmd_send.shoot_num = vision_input->fire;
+
+                if(vision_control.shoot_vision_control.shoot_command == 0)
+                {shoot_cmd_send.shoot_num = 1 ;}
+                else{
+                    shoot_cmd_send.shoot_num = 0;
+                }
+
                 if (shoot_cmd_send.shoot_num == 1) {
                     shoot_cmd_send.load_mode = LOAD_VISION;
                 } else if (shoot_cmd_send.shoot_num == 0) {
                     shoot_cmd_send.load_mode = LOAD_STOP;
                 }
+
+
+
 
                 // 视觉接管成功，关闭手动摇杆控制云台
                 use_manual_rocker = 0;
@@ -240,6 +291,60 @@ static void RemoteControlSet()
                 shoot_cmd_send.load_mode = LOAD_STOP;
             }
         }
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////-----psy_vision
+///////////////////////////////////////////////////////////////////////
+//
+//        // 确保视觉通信正常且有数据帧
+//        if (vision_recv != NULL)
+//        {
+//            InputData_t *vision_input = &vision_recv->input_data;
+//
+//            // 检查视觉是否有有效目标
+//            if (vision_input->shoot_yaw != 0.0f || vision_input->shoot_pitch != 0.0f)
+//            {
+//                // 视觉接管云台姿态
+//                //gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+//                //gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+//
+//                // 1. 视觉发送的是世界坐标系下的绝对角度（弧度制），先转换为角度制
+//                float target_yaw_deg = vision_input->shoot_yaw * 57.2957795f;
+//
+//                // 2. C板的 gimbal_cmd_send.yaw 是连续的多圈角度，需要计算最短路径偏差（避免360度乱甩和倒卷）
+//                float yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
+//                while (yaw_error > 180.0f) yaw_error -= 360.0f;
+//                while (yaw_error <= -180.0f) yaw_error += 360.0f;
+//
+//                // 3. 将最短路径偏差累加上去
+//                gimbal_cmd_send.yaw += yaw_error;
+//
+//                // Pitch轴由于不会跨越360度，直接赋值即可
+//                gimbal_cmd_send.pitch = vision_input->shoot_pitch * 57.2957795f;
+//
+//
+//                // 视觉接管开火
+//                shoot_cmd_send.shoot_num = vision_input->fire;
+//                if (shoot_cmd_send.shoot_num == 1) {
+//                    shoot_cmd_send.load_mode = LOAD_VISION;
+//                } else if (shoot_cmd_send.shoot_num == 0) {
+//                    shoot_cmd_send.load_mode = LOAD_STOP;
+//                }
+//
+//                // 视觉接管成功，关闭手动摇杆控制云台
+//                use_manual_rocker = 0;
+//            }
+//            else
+//            {
+//                // 有视觉连接，但没扫到目标，强行停火
+//                shoot_cmd_send.load_mode = LOAD_STOP;
+//            }
+//        }
+
+
+
+
+
     }
     else
     {

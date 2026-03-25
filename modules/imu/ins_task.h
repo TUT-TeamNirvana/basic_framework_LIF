@@ -92,6 +92,13 @@ attitude_t *INS_Init(void);
 void INS_Task(void);
 
 /**
+ * @brief 获取惯导系统结构体指针
+ *
+ * @return INS_t* 惯导系统结构体指针
+ */
+INS_t* get_INS_point(void);
+
+/**
  * @brief 四元数更新函数,即实现dq/dt=0.5Ωq
  *
  * @param q  四元数
