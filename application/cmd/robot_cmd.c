@@ -223,9 +223,7 @@ static void RemoteControlSet()
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////-----psy_vision
 ///////////////////////////////////////////////////////////////////////
-                // 确保视觉通信正常且有数据帧
-        if (1)
-        {
+
             // ========== 调试日志：检查视觉状态 ==========
             static uint32_t debug_count = 0;
             if ((debug_count++ % 100) == 0)  // 每100次循环打印一次，避免日志过多
@@ -316,7 +314,6 @@ static void RemoteControlSet()
                 shoot_cmd_send.load_mode = LOAD_STOP;
                 gimbal_cmd_send.yaw_speed_feedforward = 0.0f;
             }
-        }
 
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////-----psy_vision
@@ -534,57 +531,58 @@ static void MouseKeySet()
     chassis_cmd_send.vx = rc_data[TEMP].key[KEY_PRESS].d * chassis_cmd_send.chassis_speed_buff - rc_data[TEMP].key[KEY_PRESS].a * chassis_cmd_send.chassis_speed_buff; // 系数待测
     chassis_cmd_send.vy = rc_data[TEMP].key[KEY_PRESS].w * chassis_cmd_send.chassis_speed_buff - rc_data[TEMP].key[KEY_PRESS].s * chassis_cmd_send.chassis_speed_buff;
 
+    // 当按下鼠标右键时，尝试使用视觉自瞄
     if (rc_data[TEMP].mouse.press_r == 1)
     {
         // 默认开启鼠标手动控制标志位
         uint8_t use_manual_mouse = 1;
 
-        // 当按下鼠标右键时，尝试使用视觉自瞄
-        if (rc_data[TEMP].mouse.press_r == 1)
+        // 检查视觉是否有有效目标
+        if (vision_control.vision_target_appear_state == 1)
         {
-            // 确保视觉通信正常且有数据帧
-            if (vision_recv != NULL)
+            // 视觉接管云台姿态
+            //gimbal_cmd_send.yaw = vision_input->shoot_yaw;
+            //gimbal_cmd_send.pitch = vision_input->shoot_pitch;
+
+            // 1. 视觉发送的是世界坐标系下的绝对角度（弧度制），先转换为角度制
+            float target_yaw_deg = vision_control.gimbal_vision_control.gimbal_yaw * 57.2957795f;
+
+            // 2. C板的 gimbal_cmd_send.yaw 是连续的多圈角度，需要计算最短路径偏差（避免360度乱甩和倒卷）
+            float yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
+            while (yaw_error > 180.0f) yaw_error -= 360.0f;
+            while (yaw_error <= -180.0f) yaw_error += 360.0f;
+
+            // 3. 将最短路径偏差累加上去
+            gimbal_cmd_send.yaw += yaw_error;
+
+            // Pitch轴由于不会跨越360度，直接赋值即可
+            gimbal_cmd_send.pitch = 15 + vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f; //15度为机械补偿角度
+
+            // 将视觉解算的角速度前馈传递给 gimbal_cmd_send
+            gimbal_cmd_send.yaw_speed_feedforward = vision_control.gimbal_vision_control.feed_forward_omega * 0.1047;
+            //InputData_t *vision_input = &vision_recv->input_data;
+
+            // 视觉接管开火,开启了摩擦轮 + 视觉发攻击指令，才开火
+            if (shoot_cmd_send.friction_mode == FRICTION_ON && vision_control.shoot_vision_control.shoot_command == 0)
             {
-                InputData_t *vision_input = &vision_recv->input_data;
-
-                // 检查视觉是否有有效目标（只要yaw和pitch不是纯0就认为扫到了目标）
-                if (vision_input->shoot_yaw != 0.0f || vision_input->shoot_pitch != 0.0f)
-                {
-                    // 视觉接管云台姿态
-                    //gimbal_cmd_send.yaw = vision_input->shoot_yaw;
-                    //gimbal_cmd_send.pitch = vision_input->shoot_pitch;
-
-                    // 1. 视觉发送的是世界坐标系下的绝对角度（弧度制），先转换为角度制
-                    float target_yaw_deg = vision_input->shoot_yaw * 57.2957795f;
-
-                    // 2. C板的 gimbal_cmd_send.yaw 是连续的多圈角度，需要计算最短路径偏差（避免360度乱甩和倒卷）
-                    float yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
-                    while (yaw_error > 180.0f) yaw_error -= 360.0f;
-                    while (yaw_error <= -180.0f) yaw_error += 360.0f;
-
-                    // 3. 将最短路径偏差累加上去
-                    gimbal_cmd_send.yaw += yaw_error;
-
-                    // Pitch轴由于不会跨越360度，直接赋值即可
-                    gimbal_cmd_send.pitch = vision_input->shoot_pitch * 57.2957795f;
-
-
-                    // 视觉接管开火
-                    if (vision_input->fire == 1) {
-                        shoot_cmd_send.load_mode = LOAD_1_BULLET; // 视需求也可改为连发
-                    } else {
-                        shoot_cmd_send.load_mode = LOAD_STOP;
-                    }
-
-                    // 视觉接管成功，关闭手动鼠标控制
-                    use_manual_mouse = 0;
-                }
-                else
-                {
-                    // 视觉有数据传过来，但是全是0（目标丢失），强行停火
-                    shoot_cmd_send.load_mode = LOAD_STOP;
-                }
+                shoot_cmd_send.shoot_num = 1;
+                shoot_cmd_send.load_mode = LOAD_VISION;
             }
+            else
+            {
+                shoot_cmd_send.shoot_num = 0;
+                shoot_cmd_send.load_mode = LOAD_STOP;
+            }
+
+            // 视觉接管成功，关闭手动鼠标控制
+            use_manual_mouse = 0;
+        }
+        else
+        {
+            // 视觉有数据传过来，但没扫到目标，强行停火
+            shoot_cmd_send.load_mode = LOAD_STOP;
+            gimbal_cmd_send.yaw_speed_feedforward = 0.0f;
+
         }
 
         // ========== 姿态解算 ==========
@@ -594,12 +592,23 @@ static void MouseKeySet()
         if (use_manual_mouse == 1)
         {
             gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
-            gimbal_cmd_send.pitch += 0.01f * (float)rc_data[TEMP].mouse.y;
+            gimbal_cmd_send.pitch -= 0.01f * (float)rc_data[TEMP].mouse.y;
         }
+    }
+    else
+    {
+        //如果没有按下右键（松开右键了），必须确保清除视觉的遗留状态
+        gimbal_cmd_send.yaw_speed_feedforward = 0.0f;
+        if (shoot_cmd_send.load_mode == LOAD_VISION) {
+            shoot_cmd_send.load_mode = LOAD_STOP;
+        }
+        // 常规鼠标控制
+        gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
+        gimbal_cmd_send.pitch -= 0.01f * (float)rc_data[TEMP].mouse.y;
+    }
 
-        // ========== 终极防疯车安全限幅 ==========
 
-        // 无论是视觉算出来的pitch，还是鼠标滑出来的pitch，绝不允许越界！
+        // ========== 防疯车安全限幅 ==========
         if (gimbal_cmd_send.pitch > 50)
         {
             gimbal_cmd_send.pitch = 50;
@@ -608,8 +617,6 @@ static void MouseKeySet()
         {
             gimbal_cmd_send.pitch = -20;
         }
-    }
-
 
     switch (rc_data[TEMP].key_count[KEY_PRESS][Key_R] % 2) // R键开关弹舱
     {
@@ -674,7 +681,9 @@ static void MouseKeySet()
     }
     if (rc_data[TEMP].mouse.press_l == 0)
     {
-        shoot_cmd_send.load_mode = LOAD_STOP;
+        if (shoot_cmd_send.load_mode != LOAD_VISION) {
+            shoot_cmd_send.load_mode = LOAD_STOP;
+        }
     }
     switch (rc_data[TEMP].key[KEY_PRESS].c) // C键设置播弹盘反转
     {

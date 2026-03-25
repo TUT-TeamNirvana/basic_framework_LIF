@@ -31,9 +31,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，chenjun开源自瞄移植成功，已添加自瞄前馈">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/chassis/chassis.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/chassis/chassis.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/cmd/robot_cmd.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/cmd/robot_cmd.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -291,7 +291,7 @@
       <workItem from="1774373883972" duration="1000" />
       <workItem from="1774376382005" duration="22067000" />
       <workItem from="1774413968687" duration="14410000" />
-      <workItem from="1774438827999" duration="1460000" />
+      <workItem from="1774438827999" duration="4343000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -437,7 +437,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774428337278</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口">
+      <option name="closed" value="true" />
+      <created>1774440423354</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1774440423354</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -477,6 +485,7 @@
     <MESSAGE value="2026赛季熊猫，尝试接入传统视觉，中断回调bug修复" />
     <MESSAGE value="2026赛季熊猫，传统视觉完成" />
     <MESSAGE value="2026赛季熊猫，chenjun开源自瞄移植成功，已添加自瞄前馈" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，chenjun开源自瞄移植成功，已添加自瞄前馈" />
+    <MESSAGE value="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口" />
   </component>
 </project>
