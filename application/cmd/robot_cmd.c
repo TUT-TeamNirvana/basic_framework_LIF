@@ -298,8 +298,10 @@ static void RemoteControlSet()
 
                 if (shoot_cmd_send.shoot_num == 1) {
                     shoot_cmd_send.load_mode = LOAD_VISION;
+                    shoot_cmd_send.shoot_rate = shoot_frequency;
                 } else if (shoot_cmd_send.shoot_num == 0) {
                     shoot_cmd_send.load_mode = LOAD_STOP;
+                    shoot_cmd_send.shoot_rate = 0;
                 }
 
 
@@ -313,6 +315,7 @@ static void RemoteControlSet()
                 // 有视觉连接，但没扫到目标，强行停火
                 shoot_cmd_send.load_mode = LOAD_STOP;
                 gimbal_cmd_send.yaw_speed_feedforward = 0.0f;
+                shoot_cmd_send.shoot_rate = 0;
             }
 
 ///////////////////////////////////////////////////////////////////////
@@ -567,11 +570,13 @@ static void MouseKeySet()
             {
                 shoot_cmd_send.shoot_num = 1;
                 shoot_cmd_send.load_mode = LOAD_VISION;
+                shoot_cmd_send.shoot_rate = shoot_frequency;
             }
             else
             {
                 shoot_cmd_send.shoot_num = 0;
                 shoot_cmd_send.load_mode = LOAD_STOP;
+                shoot_cmd_send.shoot_rate = 0;
             }
 
             // 视觉接管成功，关闭手动鼠标控制
