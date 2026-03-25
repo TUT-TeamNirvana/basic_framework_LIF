@@ -281,11 +281,11 @@ static void RemoteControlSet()
                 // 3. 将最短路径偏差累加上去
                 gimbal_cmd_send.yaw += yaw_error;
 
-                float gimbal_cmd_send_AAAA = 0 ;
-
                 // Pitch轴由于不会跨越360度，直接赋值即可
                 gimbal_cmd_send.pitch = 15 + vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f; //15度为机械补偿角度
 
+                // 将视觉解算的角速度前馈传递给 gimbal_cmd_send
+                gimbal_cmd_send.yaw_speed_feedforward = vision_control.gimbal_vision_control.feed_forward_omega * 0.1047;
                 InputData_t *vision_input = &vision_recv->input_data;
 //                // 视觉接管开火
 //                shoot_cmd_send.shoot_num = vision_control.shoot_vision_control;
@@ -314,6 +314,7 @@ static void RemoteControlSet()
             {
                 // 有视觉连接，但没扫到目标，强行停火
                 shoot_cmd_send.load_mode = LOAD_STOP;
+                gimbal_cmd_send.yaw_speed_feedforward = 0.0f;
             }
         }
 

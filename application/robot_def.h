@@ -169,6 +169,8 @@ typedef struct
     float pitch;
     float chassis_rotate_wz;
 
+    float yaw_speed_feedforward; // 【新增】云台yaw轴角速度前馈量
+
     gimbal_mode_e gimbal_mode;
 } Gimbal_Ctrl_Cmd_s;
 

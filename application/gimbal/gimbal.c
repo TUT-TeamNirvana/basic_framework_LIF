@@ -57,6 +57,7 @@ void GimbalInit()
             .other_angle_feedback_ptr = &gimba_IMU_data->YawTotalAngle,
             // 还需要增加角速度额外反馈指针,注意方向,ins_task.md中有c板的bodyframe坐标系说明
             .other_speed_feedback_ptr = &gimba_IMU_data->Gyro[2],
+            .speed_feedforward_ptr = &gimbal_cmd_recv.yaw_speed_feedforward,
         },
         .controller_setting_init_config = {
             .angle_feedback_source = OTHER_FEED,
@@ -64,6 +65,7 @@ void GimbalInit()
             .outer_loop_type = ANGLE_LOOP,
             .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
             .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+            .feedforward_flag = SPEED_FEEDFORWARD,
         },
         .motor_type = GM6020};
     // PITCH，参数x减速比3.4
