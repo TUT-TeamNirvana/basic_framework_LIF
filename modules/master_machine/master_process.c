@@ -119,7 +119,7 @@ static void VisionOfflineCallback(void *id)
     LOGWARNING("[Vision] offline, restart UART communication");
 #else
     // VCP 模式下重启 USB 通信
-    //LOGWARNING("[Vision] offline, restart VCP communication");
+    LOGWARNING("[Vision] offline, restart VCP communication");
 #endif
 }
 
