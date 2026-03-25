@@ -241,7 +241,7 @@ static void RefereeRxCallback()
 static void RefereeLostCallback(void *arg)
 {
 	USARTServiceInit(referee_usart_instance);
-	LOGWARNING("[rm_ref] lost referee data");
+	//LOGWARNING("[rm_ref] lost referee data");
 }
 
 /* 裁判系统通信初始化 */

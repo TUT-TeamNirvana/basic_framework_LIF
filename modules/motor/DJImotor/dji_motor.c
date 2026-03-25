@@ -426,7 +426,7 @@ void DJIMotorControl()
 
                 // 用 RTT 同时打印出：预测功率、真实功率、限制阈值
                 // 在 J-Scope 里看这三条曲线是否完全贴合！
-                RTT_PrintWave_np(3, (double)P_cmd, (double)real_power, (double)max_power);
+                //RTT_PrintWave_np(3, (double)P_cmd, (double)real_power, (double)max_power);
 
                 //DAPLink HSS 上位机用的全局变量赋值
                 hss_predict_power = P_cmd;

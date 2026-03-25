@@ -119,7 +119,7 @@ static void VisionOfflineCallback(void *id)
     LOGWARNING("[Vision] offline, restart UART communication");
 #else
     // VCP 模式下重启 USB 通信
-    LOGWARNING("[Vision] offline, restart VCP communication");
+    //LOGWARNING("[Vision] offline, restart VCP communication");
 #endif
 }
 
@@ -216,19 +216,14 @@ void VisionSend(VisionSendFrame_t *tx_frame)
  */
 static void DecodeVision(uint16_t len)
 {
-    UNUSED(len);  // 不使用该参数，因为数据已经在全局缓冲区 vis_recv_buff 中
+    //UNUSED(len);  // 不使用该参数，因为数据已经在全局缓冲区 vis_recv_buff 中
     //LOGINFO("RX len: %d", len);
     /*LOGINFO("RX HEX: %02X %02X %02X %02X %02X %02X",
            vis_recv_buff[0], vis_recv_buff[1], vis_recv_buff[2],
            vis_recv_buff[3], vis_recv_buff[4], vis_recv_buff[5]);*/
     // 从 USB 接收缓冲区解包数据
     // 注意：视觉端发送时没有加\n，所以直接解包 sizeof(VisionRecvFrame_t) 字节
-     uint8_t result = unpack_recv_frame(vis_recv_buff, &recv_frame);
-    if (result == 0) {
-        DaemonReload(vision_daemon);  // 数据正确，回传给进程守护
-    } else {
-        LOGWARNING("[Vision VCP] Frame error: %d", result);
-    }
+    receive_decode(vis_recv_buff, len);
 }
 
 
@@ -833,6 +828,8 @@ void receive_decode(uint8_t* buf, uint32_t len)
             vision_receive.current_receive_time = TIME_MS_TO_S(HAL_GetTick());
             //计算时间间隔
             vision_receive.interval_time = vision_receive.current_receive_time - vision_receive.last_receive_time;
+
+            DaemonReload(vision_daemon);
         }
     }
 }
