@@ -28,6 +28,17 @@
 PIDInstance power_pid;
 PID_Init_Config_s power_pid_config;
 
+// 底盘位置环PID实例,对接雷达
+static PIDInstance chassis_pos_x_pid;
+static PIDInstance chassis_pos_y_pid;
+
+// 这些变量在通信接收处更新为算法发来的真实数据
+// current_x, current_y 是 Mid360算出的当前坐标
+// current_yaw 是当前底盘在地图里的绝对朝向（单位：弧度，0度正前方）
+// target_x, target_y 是要去的目标坐标
+float current_x = 0.0f, current_y = 0.0f, current_yaw = 0.0f;
+float target_x = 0.0f, target_y = 0.0f;
+uint8_t is_auto_nav_mode = 0; // 标志位：0为遥控器控制，1为算法自动导航控制
 
 /* 根据robot_def.h中的macro自动计算的参数 */
 #define HALF_WHEEL_BASE (WHEEL_BASE / 2.0f)     // 半轴距
@@ -111,6 +122,18 @@ void ChassisInit()
     motor_rb = DJIMotorInit(&chassis_motor_config);
 
     referee_data = UITaskInit(&huart6,&ui_data); // 裁判系统初始化,会同时初始化UI
+
+    //底盘位置环PID初始化
+    PID_Init_Config_s pos_pid_config = {
+        .Kp = 2.0f,
+        .Ki = 0.0f,
+        .Kd = 0.5f,
+        .MaxOut = 2.5f, //限制最大速度
+        .IntegralLimit = 0.5f,
+        .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
+    };
+    PIDInit(&chassis_pos_x_pid, &pos_pid_config);
+    PIDInit(&chassis_pos_y_pid, &pos_pid_config);
 
     //添加功率计初始化
     // power_meter_init(); // 功率计初始化
@@ -246,6 +269,28 @@ void ChassisTask()
     sin_theta = arm_sin_f32(chassis_cmd_recv.offset_angle * DEGREE_2_RAD);
     chassis_vy = chassis_cmd_recv.vx * sin_theta + chassis_cmd_recv.vy * cos_theta;  
     chassis_vx = chassis_cmd_recv.vx * cos_theta - chassis_cmd_recv.vy * sin_theta;
+
+    if (is_auto_nav_mode) // 只有进入算法自动导航模式，才启用位置环
+    {
+        // 1. 全局坐标系下计算 PID，输出全局的速度 (global_vx, global_vy)
+        PIDCalculate(&chassis_pos_x_pid, current_x, target_x);
+        PIDCalculate(&chassis_pos_y_pid, current_y, target_y);
+
+        float global_vx = chassis_pos_x_pid.Output;
+        float global_vy = chassis_pos_y_pid.Output;
+
+        // 2. 坐标系旋转：将全局速度映射回底盘的局部速度
+        // (注：需确保 current_yaw 单位为弧度。如算法发的是角度，需乘以 DEGREE_2_RAD)
+        float sin_yaw = arm_sin_f32(current_yaw);
+        float cos_yaw = arm_cos_f32(current_yaw);
+
+        // 覆盖掉前面原本遥控器解算出的 chassis_vx 和 chassis_vy
+        chassis_vx = global_vx * cos_yaw + global_vy * sin_yaw;
+        chassis_vy = -global_vx * sin_yaw + global_vy * cos_yaw;
+
+        // 旋转速度(wz)可以直接使用算法发的特定yaw偏角误差去控制，或者保持0
+        // chassis_cmd_recv.wz = ...
+    }
 
     // 根据控制模式进行正运动学解算,计算底盘输出
     MecanumCalculate();
