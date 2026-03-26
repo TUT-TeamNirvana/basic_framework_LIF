@@ -31,7 +31,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，改自瞄">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，添加vt3遥控控制拨弹盘和摩擦轮，并且不影响dt7和键鼠操作">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,12 +51,13 @@
     <option name="onto" value="258c04cbf450385ca980f1462cae47e0c418a3fa" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF_white/application/cmd/robot_cmd.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF_white/Src/main.c" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/application/robot.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/DJImotor/dji_motor.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/servo_motor/servo_motor.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF_white/modules/remote/remote_control.c" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MakefileLocalSettings">
     <option name="projectSyncType">
@@ -108,11 +109,6 @@
   }
 }</component>
   <component name="RunManager" selected="OpenOCD 下载并运行.26步兵熊猫">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="basic_framework.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="basic_framework" TARGET_NAME="basic_framework.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="basic_framework" RUN_TARGET_NAME="basic_framework.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -290,6 +286,9 @@
       <workItem from="1774413968687" duration="14410000" />
       <workItem from="1774438827999" duration="7125000" />
       <workItem from="1774511581758" duration="28000" />
+      <workItem from="1774514092156" duration="12024000" />
+      <workItem from="1774528749042" duration="1647000" />
+      <workItem from="1774534568612" duration="386000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -459,7 +458,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774445550226</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="2026赛季熊猫，添加vt3遥控控制拨弹盘和摩擦轮，并且不影响dt7和键鼠操作">
+      <option name="closed" value="true" />
+      <created>1774528572547</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1774528572547</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -502,6 +509,7 @@
     <MESSAGE value="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口" />
     <MESSAGE value="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口，修复键鼠操作时自瞄逻辑bug" />
     <MESSAGE value="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口，修复键鼠操作时自瞄没有自动扳机bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口，修复键鼠操作时自瞄没有自动扳机bug" />
+    <MESSAGE value="2026赛季熊猫，添加vt3遥控控制拨弹盘和摩擦轮，并且不影响dt7和键鼠操作" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，添加vt3遥控控制拨弹盘和摩擦轮，并且不影响dt7和键鼠操作" />
   </component>
 </project>

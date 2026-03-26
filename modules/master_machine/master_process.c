@@ -713,6 +713,12 @@ extern void vision_data_process(vision_control_t* vision_data)
  *
  * @param shoot_judge 视觉结构体
  */
+
+//extern VisionSendFrame_t vision_send_frame; // 云台视觉发送数据帧（新协议）
+extern Gimbal_Upload_Data_s gimbal_feedback_data; // 回传给cmd的云台状态信息
+extern Gimbal_Ctrl_Cmd_s gimbal_cmd_send;      // 传递给云台的控制信息
+extern vision_control_t vision_control;
+
 extern void vision_shoot_judge(vision_control_t* shoot_judge)
 {
     //判断是否识别
@@ -733,15 +739,23 @@ extern void vision_shoot_judge(vision_control_t* shoot_judge)
                 if (diff_yaw_angle <= 0.1 || shoot_judge->target_data.v_yaw < 1){
                     // 根据装甲板大小和距离判断允许发弹误差角
                     allow_attack_error_pitch = atan2((ARMOR_HIGH / 2.0f) - 0.05, target_distance);
+                    // if (shoot_judge->target_data.id == ARMOR_HERO){
+                    //     allow_attack_error_yaw = atan2((LARGE_ARM0R_WIDTH / 2.0f) - 0.08f, target_distance);
+                    // }
+                    // else{
+                    //     allow_attack_error_yaw = atan2((SMALL_ARMOR_WIDTH / 2.0f) - 0.08f, target_distance);
+                    // }
+                    // fp32 yaw_error = shoot_judge->aim_armor_angle.gimbal_yaw - shoot_judge->vision_angle_point->Yaw;
+                    // fp32 pitch_error = shoot_judge->aim_armor_angle.gimbal_pitch - (shoot_judge->vision_angle_point->Pitch);
+                    // 小于一角度开始击打
                     if (shoot_judge->target_data.id == ARMOR_HERO){
-                        allow_attack_error_yaw = atan2((LARGE_ARM0R_WIDTH / 2.0f) - 0.08f, target_distance);
+                        allow_attack_error_yaw = atan2((LARGE_ARM0R_WIDTH / 2.0f), target_distance);
                     }
                     else{
-                        allow_attack_error_yaw = atan2((SMALL_ARMOR_WIDTH / 2.0f) - 0.08f, target_distance);
+                        allow_attack_error_yaw = atan2((SMALL_ARMOR_WIDTH / 2.0f), target_distance);
                     }
-                    fp32 yaw_error = shoot_judge->aim_armor_angle.gimbal_yaw - shoot_judge->vision_angle_point->Yaw;
-                    fp32 pitch_error = shoot_judge->aim_armor_angle.gimbal_pitch - (shoot_judge->vision_angle_point->Pitch);
-                    // 小于一角度开始击打
+                    fp32 yaw_error =fabs(     (gimbal_feedback_data.gimbal_imu_data.Yaw )- gimbal_cmd_send.yaw                             );
+                    fp32 pitch_error = fabs(  (15 + vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f)- gimbal_cmd_send.pitch);
                     if (fabs(yaw_error) <= fabs(allow_attack_error_yaw) && fabs(pitch_error) <= fabs(allow_attack_error_pitch)){
                         shoot_judge->shoot_vision_control.shoot_command = SHOOT_ATTACK;
                     }

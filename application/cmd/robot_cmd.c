@@ -44,7 +44,8 @@ static VisionSendFrame_t vision_send;  // 发送给视觉的状态数据（电�
 
 static Publisher_t *gimbal_cmd_pub;            // 云台控制消息发布者
 static Subscriber_t *gimbal_feed_sub;          // 云台反馈信息订阅者
-static Gimbal_Ctrl_Cmd_s gimbal_cmd_send;      // 传递给云台的控制信息
+Gimbal_Ctrl_Cmd_s gimbal_cmd_send;
+extern Gimbal_Ctrl_Cmd_s gimbal_cmd_send;      // 传递给云台的控制信息
 static Gimbal_Upload_Data_s gimbal_fetch_data; // 从云台获取的反馈信息
 
 static Publisher_t *shoot_cmd_pub;           // 发射控制消息发布者
@@ -589,7 +590,7 @@ static void MouseKeySet()
             gimbal_cmd_send.pitch = 15 + vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f; //15度为机械补偿角度
 
             // 将视觉解算的角速度前馈传递给 gimbal_cmd_send
-            gimbal_cmd_send.yaw_speed_feedforward = vision_control.gimbal_vision_control.feed_forward_omega * 0.1047;
+            gimbal_cmd_send.yaw_speed_feedforward = vision_control.gimbal_vision_control.feed_forward_omega * 0.1047 * 1.5;
             //InputData_t *vision_input = &vision_recv->input_data;
 
             // 视觉接管开火,开启了摩擦轮 + 视觉发攻击指令，才开火
