@@ -31,7 +31,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口，修复键鼠操作时自瞄没有自动扳机bug">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，改自瞄">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -108,6 +108,11 @@
   }
 }</component>
   <component name="RunManager" selected="OpenOCD 下载并运行.26步兵熊猫">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="basic_framework.elf" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="basic_framework" TARGET_NAME="basic_framework.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="basic_framework" RUN_TARGET_NAME="basic_framework.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -284,6 +289,7 @@
       <workItem from="1774376382005" duration="22067000" />
       <workItem from="1774413968687" duration="14410000" />
       <workItem from="1774438827999" duration="7125000" />
+      <workItem from="1774511581758" duration="28000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />

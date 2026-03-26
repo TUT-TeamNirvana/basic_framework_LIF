@@ -425,27 +425,54 @@ static void RemoteControlSet()
             chassis_cmd_send.vy = 100.0f * (float)rc_data[TEMP].rc.rocker_r1; // 右侧摇杆水平方向控制y方向速度
         }
 
+    // VT3 图传伪装按键开启摩擦轮
+    if (rc_data[TEMP].key[KEY_PRESS].f == 1)
+    {
+        shoot_cmd_send.friction_mode = FRICTION_ON;
+        shoot_cmd_send.bullet_speed = 30;
+    }
+    if (rc_data[TEMP].key[KEY_PRESS].g == 1)
+    {
+        shoot_cmd_send.friction_mode = FRICTION_OFF;
+        shoot_cmd_send.bullet_speed = 0;
+    }
+
     // 摩擦轮控制,拨轮向上打为负,向下为正
     if (shoot_cmd_send.friction_mode == FRICTION_ON)
     {
         shoot_cmd_send.shoot_mode = SHOOT_ON;
         shoot_cmd_send.friction_mode = FRICTION_ON;
-        if (rc_data[TEMP].rc.dial > 100){
+        
+        // 支持 VT3 的伪装左键(正转)和C键(反转)，优先判断
+        if (rc_data[TEMP].mouse.press_l == 1)
+        {
+            shoot_cmd_send.load_mode = LOAD_BURSTFIRE;
+            shoot_cmd_send.shoot_rate = shoot_frequency;
+            shoot_cmd_send.shoot_num = 0;
+        }
+        else if (rc_data[TEMP].key[KEY_PRESS].c == 1)
+        {
+            shoot_cmd_send.load_mode = LOAD_REVERSE;
+            shoot_cmd_send.shoot_rate = shoot_frequency;
+            shoot_cmd_send.shoot_num = 0;
+        }
+        else if (rc_data[TEMP].rc.dial > 100)
+        {
             shoot_cmd_send.load_mode = LOAD_1_BULLET;
             shoot_cmd_send.shoot_num = 1;
             if (shoot_fetch_data.shoot_finish_flag == 1)
             {
                 shoot_cmd_send.shoot_num = 0;
             }
-            
         } 
-        if (rc_data[TEMP].rc.dial < -100)
+        else if (rc_data[TEMP].rc.dial < -100)
         {
             shoot_cmd_send.load_mode = LOAD_BURSTFIRE;
             shoot_cmd_send.shoot_rate = shoot_frequency;
             shoot_cmd_send.shoot_num = 0;
         }
-        if ((rc_data[TEMP].rc.dial == 0) && (shoot_cmd_send.load_mode != LOAD_VISION) && (shoot_cmd_send.load_mode != LOAD_REVERSE)){
+        else if ((rc_data[TEMP].rc.dial == 0) && (shoot_cmd_send.load_mode != LOAD_VISION))
+        {
             shoot_cmd_send.load_mode = LOAD_STOP;
         }
     } 
