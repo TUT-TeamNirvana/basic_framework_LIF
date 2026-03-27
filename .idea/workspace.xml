@@ -31,8 +31,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，添加vt3遥控控制拨弹盘和摩擦轮，并且不影响dt7和键鼠操作">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，把改完的视觉下位机解算移植过来">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,13 +52,17 @@
     <option name="onto" value="258c04cbf450385ca980f1462cae47e0c418a3fa" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF_white/Src/main.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/application/cmd/robot_cmd.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/application/gimbal/gimbal.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/application/robot.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/application/shoot/shoot.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bsp/can/bsp_can.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/bsp/usart/bsp_usart.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/modules/master_machine/master_process.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/DJImotor/dji_motor.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/modules/motor/servo_motor/servo_motor.c" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF_white/modules/remote/remote_control.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/modules/remote/remote_control.c" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MakefileLocalSettings">
     <option name="projectSyncType">
@@ -289,6 +294,10 @@
       <workItem from="1774514092156" duration="12024000" />
       <workItem from="1774528749042" duration="1647000" />
       <workItem from="1774534568612" duration="386000" />
+      <workItem from="1774543812515" duration="2547000" />
+      <workItem from="1774580015075" duration="1219000" />
+      <workItem from="1774582822766" duration="2096000" />
+      <workItem from="1774620870141" duration="970000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -466,7 +475,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774528572547</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="2026赛季熊猫，把改完的视觉下位机解算移植过来">
+      <option name="closed" value="true" />
+      <created>1774544583005</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1774544583005</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -510,6 +527,7 @@
     <MESSAGE value="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口，修复键鼠操作时自瞄逻辑bug" />
     <MESSAGE value="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口，修复键鼠操作时自瞄没有自动扳机bug" />
     <MESSAGE value="2026赛季熊猫，添加vt3遥控控制拨弹盘和摩擦轮，并且不影响dt7和键鼠操作" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，添加vt3遥控控制拨弹盘和摩擦轮，并且不影响dt7和键鼠操作" />
+    <MESSAGE value="2026赛季熊猫，把改完的视觉下位机解算移植过来" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，把改完的视觉下位机解算移植过来" />
   </component>
 </project>
