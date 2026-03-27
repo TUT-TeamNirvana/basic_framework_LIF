@@ -712,27 +712,16 @@ static void MouseKeySet()
 
         break;
     }
-    if (rc_data[TEMP].mouse.press_l == 0)
+    // 统一的发弹仲裁逻辑 (仲裁视觉开火、手动左键和C键反转)
+    if (rc_data[TEMP].key[KEY_PRESS].c == 1) // 最高优先级：C键排卡反转
     {
-        if (shoot_cmd_send.load_mode != LOAD_VISION) {
-            shoot_cmd_send.load_mode = LOAD_STOP;
-        }
-    }
-    switch (rc_data[TEMP].key[KEY_PRESS].c) // C键设置播弹盘反转
-    {
-    case 0:
-
-        break;
-
-    default:
         shoot_cmd_send.load_mode = LOAD_REVERSE;
         shoot_cmd_send.shoot_rate = shoot_frequency;
         shoot_cmd_send.shoot_num = 0;
-        break;
     }
-    if (rc_data[TEMP].mouse.press_l == 1)
+    else if (rc_data[TEMP].mouse.press_l == 1) // 次高优先级：玩家按下左键，无条件进入手动发弹
     {
-        switch (rc_data[TEMP].key_count[KEY_PRESS][Key_Z]%2) // z键设置发射模式
+        switch (rc_data[TEMP].key_count[KEY_PRESS][Key_Z] % 2) // z键设置发射模式 (连发/单发)
         {
         case 0:
             shoot_cmd_send.load_mode = LOAD_BURSTFIRE;
@@ -749,6 +738,15 @@ static void MouseKeySet()
             }
             break;
         }
+    }
+    else if (shoot_cmd_send.load_mode == LOAD_VISION) // 视觉自动开火模式保持
+    {
+        // 如果上面右键逻辑里已经判定为 LOAD_VISION 且处于开火状态，则保持不变
+    }
+    else // 最低优先级：停火
+    {
+        shoot_cmd_send.load_mode = LOAD_STOP;
+        shoot_cmd_send.shoot_rate = 0;
     }
     
 }
