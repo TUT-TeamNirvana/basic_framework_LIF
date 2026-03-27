@@ -37,35 +37,38 @@ static void f_Changing_Integration_Rate(PIDInstance *pid)
     }
 }
 
-// 传统的死限幅积分 (如果启用了PID_Integral_Limit)
+// 动态积分限幅 (融合了 2006test 的动态比例思想)
 static void f_Integral_Limit(PIDInstance *pid)
 {
-    // 这部分保留给只使用死限幅而不使用条件抗积分饱和的情况
-    static float temp_Output, temp_Iout;
-    temp_Iout = pid->Iout + pid->ITerm;
-    temp_Output = pid->Pout + pid->Iout + pid->Dout;
-    
-    // 如果没有使用条件抗积分饱和(Clamp)，则使用原来的硬切断
+    // 动态计算积分限幅：如果未配置(即默认为0)，则默认限幅为最大输出的 1.0 倍
+    // 你可以随时将 1.0f 改为你喜欢的比例，比如 0.5f，代表积分最大只能占满电机的一半输出
+    float integral_max = (pid->IntegralLimit > 0.000001f) ? pid->IntegralLimit : (pid->MaxOut * 1.0f);
+
+    // 如果没有使用条件抗积分饱和(Clamp)，则保留原来的硬切断防积分饱和机制
     if (!(pid->Improve & PID_Clamp_Anti_Windup))
     {
+        float temp_Output = pid->Pout + pid->Iout + pid->ITerm + pid->Dout;
         if (fabsf(temp_Output) > pid->MaxOut)
         {
-            if (pid->Err * pid->Iout > 0) // 积分却还在累积
+            if (pid->Err * pid->Iout > 0) // 积分方向与误差方向相同且总输出超限
             {
-                pid->ITerm = 0; // 当前积分项置零
+                pid->ITerm = 0; // 当前积分项不累加
             }
         }
     }
 
-    if (temp_Iout > pid->IntegralLimit)
+    float temp_Iout = pid->Iout + pid->ITerm;
+    
+    // 执行动态限幅
+    if (temp_Iout > integral_max)
     {
         pid->ITerm = 0;
-        pid->Iout = pid->IntegralLimit;
+        pid->Iout = integral_max;
     }
-    if (temp_Iout < -pid->IntegralLimit)
+    else if (temp_Iout < -integral_max)
     {
         pid->ITerm = 0;
-        pid->Iout = -pid->IntegralLimit;
+        pid->Iout = -integral_max;
     }
 }
 
@@ -230,6 +233,7 @@ float PIDCalculate(PIDInstance *pid, float measure, float ref)
         f_Changing_Integration_Rate(pid);
 
     // 条件积分抗饱和 (Clamp): 如果启用
+    // 完全对齐 2006test 的抗积分饱和逻辑
     if (pid->Improve & PID_Clamp_Anti_Windup)
     {
         float current_output_pre_I = pid->Pout + pid->Iout + pid->Dout + ff_term + accel_term;
@@ -245,6 +249,8 @@ float PIDCalculate(PIDInstance *pid, float measure, float ref)
                 if ((potential_output > pid->MaxOut && pid->Err < 0.0f) ||
                     (potential_output < -pid->MaxOut && pid->Err > 0.0f)) {
                     should_update_integral = 1;
+                } else {
+                    should_update_integral = 0;
                 }
             }
         } 
@@ -253,6 +259,8 @@ float PIDCalculate(PIDInstance *pid, float measure, float ref)
             if ((current_output_pre_I > pid->MaxOut && pid->Err < 0.0f) ||
                 (current_output_pre_I < -pid->MaxOut && pid->Err > 0.0f)) {
                 should_update_integral = 1;
+            } else {
+                should_update_integral = 0;
             }
         }
 
@@ -261,7 +269,11 @@ float PIDCalculate(PIDInstance *pid, float measure, float ref)
         }
     }
 
-    // 积分限幅 (硬限幅，如果启用了PID_Integral_Limit)
+    // 积分限幅 (动态比例限幅)
+    // 回答你的问题：如果你在初始化时没设置 IntegralLimit（结构体默认为0），
+    // 此时不会出问题！因为上方 f_Integral_Limit 里面会自动检测：
+    // 如果它等于 0，则会自动使用 MaxOut * 1.0f (即10000) 作为动态限幅，
+    // 这样完美保留了你的 2006test 中自适应限幅的优点。
     if (pid->Improve & PID_Integral_Limit)
         f_Integral_Limit(pid);
 
