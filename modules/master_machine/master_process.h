@@ -40,7 +40,7 @@
 //云台转轴中心到发射最大初速度点的距离
 #define DISTANCE_STATIC 0.02f
 //枪管pitch歪(相较于正确安装的误差)
-#define PITCH_STATIC 0.0f
+#define PITCH_STATIC -0.4f
 //子弹类型 小弹丸 0，大弹丸 1, 发光大弹丸 2
 #define BULLET_TYPE 0
 
