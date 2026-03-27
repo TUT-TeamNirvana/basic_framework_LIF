@@ -24,7 +24,7 @@ extern vision_control_t vision_control;  // 从 master_process.c 获取 (line_42
 // 私有宏,自动将编码器转换成角度值
 #define YAW_ALIGN_ANGLE (YAW_CHASSIS_ALIGN_ECD * ECD_ANGLE_COEF_DJI) // 对齐时的角度,0-360
 #define PTICH_HORIZON_ANGLE (PITCH_HORIZON_ECD * ECD_ANGLE_COEF_DJI) // pitch水平时电机的角度,0-360
-#define shoot_frequency 5 //射击频率
+#define shoot_frequency 8 //射击频率
 /* cmd应用包含的模块实例指针和交互信息存储*/
 #ifdef GIMBAL_BOARD // 对双板的兼容,条件编译
 #include "can_comm.h"
@@ -833,7 +833,7 @@ void RobotCMDTask()
             shoot_cmd_send.lid_mode = LID_CLOSE;
         }
         if (vision_recv != NULL) {
-            LOGINFO("Vision Pitch: %f, Yaw: %f", vision_recv->input_data.shoot_pitch, vision_recv->input_data.shoot_yaw);
+            //LOGINFO("Vision Pitch: %f, Yaw: %f", vision_recv->input_data.shoot_pitch, vision_recv->input_data.shoot_yaw);
         }
     }
     EmergencyHandler(); // 处理模块离线和遥控器急停等紧急情况

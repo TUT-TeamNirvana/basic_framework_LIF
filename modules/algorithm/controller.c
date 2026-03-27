@@ -40,9 +40,8 @@ static void f_Changing_Integration_Rate(PIDInstance *pid)
 // 动态积分限幅 (融合了 2006test 的动态比例思想)
 static void f_Integral_Limit(PIDInstance *pid)
 {
-    // 动态计算积分限幅：如果未配置(即默认为0)，则默认限幅为最大输出的 1.0 倍
-    // 你可以随时将 1.0f 改为你喜欢的比例，比如 0.5f，代表积分最大只能占满电机的一半输出
-    float integral_max = (pid->IntegralLimit > 0.000001f) ? pid->IntegralLimit : (pid->MaxOut * 1.0f);
+    // 动态计算积分限幅：如果未配置(即默认为0)，则默认限幅为最大输出的 0.5 倍
+    float integral_max = (pid->IntegralLimit > 0.000001f) ? pid->IntegralLimit : (pid->MaxOut * 0.5f);
 
     // 如果没有使用条件抗积分饱和(Clamp)，则保留原来的硬切断防积分饱和机制
     if (!(pid->Improve & PID_Clamp_Anti_Windup))
@@ -173,7 +172,7 @@ float PIDCalculate(PIDInstance *pid, float measure, float ref)
     float real_err = pid->Ref - pid->Measure;
     
     // ========================================================
-    // 软死区处理 (来自 2006test 的精髓)
+    // 软死区处理 (移植于 2006test )
     // ========================================================
     uint8_t in_deadband = (fabsf(real_err) < pid->DeadBand);
     if (in_deadband)
@@ -270,10 +269,7 @@ float PIDCalculate(PIDInstance *pid, float measure, float ref)
     }
 
     // 积分限幅 (动态比例限幅)
-    // 回答你的问题：如果你在初始化时没设置 IntegralLimit（结构体默认为0），
-    // 此时不会出问题！因为上方 f_Integral_Limit 里面会自动检测：
-    // 如果它等于 0，则会自动使用 MaxOut * 1.0f (即10000) 作为动态限幅，
-    // 这样完美保留了你的 2006test 中自适应限幅的优点。
+    // 上方 f_Integral_Limit 里面会自动检测，如果它等于 0，则会自动使用 MaxOut * 1.0f (即10000) 作为动态限幅，
     if (pid->Improve & PID_Integral_Limit)
         f_Integral_Limit(pid);
 
