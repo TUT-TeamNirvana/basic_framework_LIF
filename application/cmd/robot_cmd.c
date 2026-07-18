@@ -273,12 +273,23 @@ static void RemoteControlSet()
                 float target_yaw_deg = vision_control.gimbal_vision_control.gimbal_yaw * 57.2957795f;
 
                 // 2. C板的 gimbal_cmd_send.yaw 是连续的多圈角度，需要计算最短路径偏差（避免360度乱甩和倒卷）
-                float yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
-                while (yaw_error > 180.0f) yaw_error -= 360.0f;
-                while (yaw_error <= -180.0f) yaw_error += 360.0f;
+                float raw_yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
 
-                // 3. 将最短路径偏差累加上去
-                gimbal_cmd_send.yaw += yaw_error;
+                // 3. 防视觉预测飘飞保护：如果单帧误差超过100度，丢弃该帧
+                if (fabsf(raw_yaw_error) > 100.0f)
+                {
+                    // 视觉预测飘飞，不更新yaw，保持当前角度，清除前馈
+                    gimbal_cmd_send.yaw_speed_feedforward = 0.0f;
+                }
+                else
+                {
+                    float yaw_error = raw_yaw_error;
+                    while (yaw_error > 180.0f) yaw_error -= 360.0f;
+                    while (yaw_error <= -180.0f) yaw_error += 360.0f;
+
+                    // 4. 将最短路径偏差累加上去
+                    gimbal_cmd_send.yaw += yaw_error;
+                }
 
                 // Pitch轴由于不会跨越360度，直接赋值即可
                 gimbal_cmd_send.pitch = 15 + vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f; //15度为机械补偿角度
@@ -405,7 +416,11 @@ static void RemoteControlSet()
         // }
         if (use_manual_rocker == 1 && rc_data[TEMP].lost_flag == 0 && robot_state != ROBOT_STOP)
         {
-            gimbal_cmd_send.yaw -= 0.005f * (float)rc_data[TEMP].rc.rocker_l_;
+            // 遥控器yaw增量限幅，防止单次摇杆突变导致疯车
+            float yaw_delta = -0.005f * (float)rc_data[TEMP].rc.rocker_l_;
+            if (yaw_delta > 15.0f) yaw_delta = 15.0f;
+            if (yaw_delta < -15.0f) yaw_delta = -15.0f;
+            gimbal_cmd_send.yaw += yaw_delta;
             gimbal_cmd_send.pitch += 0.001f * (float)rc_data[TEMP].rc.rocker_l1;
         }
         if (gimbal_cmd_send.pitch > 50)
@@ -579,12 +594,23 @@ static void MouseKeySet()
             float target_yaw_deg = vision_control.gimbal_vision_control.gimbal_yaw * 57.2957795f;
 
             // 2. C板的 gimbal_cmd_send.yaw 是连续的多圈角度，需要计算最短路径偏差（避免360度乱甩和倒卷）
-            float yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
-            while (yaw_error > 180.0f) yaw_error -= 360.0f;
-            while (yaw_error <= -180.0f) yaw_error += 360.0f;
+            float raw_yaw_error = target_yaw_deg - fmodf(gimbal_cmd_send.yaw, 360.0f);
 
-            // 3. 将最短路径偏差累加上去
-            gimbal_cmd_send.yaw += yaw_error;
+            // 3. 防视觉预测飘飞保护：如果单帧误差超过100度，丢弃该帧
+            if (fabsf(raw_yaw_error) > 100.0f)
+            {
+                // 视觉预测飘飞，不更新yaw，保持当前角度，清除前馈
+                gimbal_cmd_send.yaw_speed_feedforward = 0.0f;
+            }
+            else
+            {
+                float yaw_error = raw_yaw_error;
+                while (yaw_error > 180.0f) yaw_error -= 360.0f;
+                while (yaw_error <= -180.0f) yaw_error += 360.0f;
+
+                // 4. 将最短路径偏差累加上去
+                gimbal_cmd_send.yaw += yaw_error;
+            }
 
             // Pitch轴由于不会跨越360度，直接赋值即可
             gimbal_cmd_send.pitch = 15 + vision_control.gimbal_vision_control.gimbal_pitch * 57.2957795f; //15度为机械补偿角度
@@ -624,7 +650,11 @@ static void MouseKeySet()
         // 统一退回到常规鼠标控制
         if (use_manual_mouse == 1)
         {
-            gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
+            // 键鼠yaw增量限幅，防止单次鼠标突变导致疯车
+            float yaw_delta = -0.01f * (float)rc_data[TEMP].mouse.x;
+            if (yaw_delta > 15.0f) yaw_delta = 15.0f;
+            if (yaw_delta < -15.0f) yaw_delta = -15.0f;
+            gimbal_cmd_send.yaw += yaw_delta;
             gimbal_cmd_send.pitch -= 0.01f * (float)rc_data[TEMP].mouse.y;
         }
     }
@@ -636,7 +666,11 @@ static void MouseKeySet()
             shoot_cmd_send.load_mode = LOAD_STOP;
         }
         // 常规鼠标控制
-        gimbal_cmd_send.yaw -= 0.01f * (float)rc_data[TEMP].mouse.x;
+        // 键鼠yaw增量限幅，防止单次鼠标突变导致疯车
+        float yaw_delta = -0.01f * (float)rc_data[TEMP].mouse.x;
+        if (yaw_delta > 15.0f) yaw_delta = 15.0f;
+        if (yaw_delta < -15.0f) yaw_delta = -15.0f;
+        gimbal_cmd_send.yaw += yaw_delta;
         gimbal_cmd_send.pitch -= 0.01f * (float)rc_data[TEMP].mouse.y;
     }
 
