@@ -32,6 +32,9 @@ PID_Init_Config_s power_pid_config;
 static PIDInstance chassis_pos_x_pid;
 static PIDInstance chassis_pos_y_pid;
 
+// 底盘跟随PID实例
+static PIDInstance chassis_follow_pid;
+
 // 这些变量在通信接收处更新为算法发来的真实数据
 // current_x, current_y 是 Mid360算出的当前坐标
 // current_yaw 是当前底盘在地图里的绝对朝向（单位：弧度，0度正前方）
@@ -104,6 +107,15 @@ void ChassisInit()
         },
         .motor_type = M3508,
     };
+    PID_Init_Config_s follow_pid_config = {
+        .Kp = 80.0f,
+        .Ki = 0.5f,
+        .Kd = 5.0f,
+        .MaxOut = 15000.0f,
+        .IntegralLimit = 2000.0f,
+        .DeadBand = 1.0f,
+        .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement,
+    };
     //  @todo: 当前还没有设置电机的正反转,仍然需要手动添加reference的正负号,需要电机module的支持,待修改.
     chassis_motor_config.can_init_config.tx_id = 1;
     chassis_motor_config.controller_setting_init_config.motor_reverse_flag = MOTOR_DIRECTION_REVERSE;
@@ -134,6 +146,7 @@ void ChassisInit()
     };
     PIDInit(&chassis_pos_x_pid, &pos_pid_config);
     PIDInit(&chassis_pos_y_pid, &pos_pid_config);
+    PIDInit(&chassis_follow_pid, &follow_pid_config);
 
     //添加功率计初始化
     // power_meter_init(); // 功率计初始化
@@ -249,7 +262,9 @@ void ChassisTask()
         // chassis_cmd_recv.wz = 0;
         break;
     case CHASSIS_FOLLOW_GIMBAL_YAW: // 跟随云台,不单独设置pid,以误差角度平方为速度输出
-        chassis_cmd_recv.wz = 1.5f * chassis_cmd_recv.offset_angle * abs(chassis_cmd_recv.offset_angle);
+        //chassis_cmd_recv.wz = 1.5f * chassis_cmd_recv.offset_angle * abs(chassis_cmd_recv.offset_angle);
+        PIDCalculate(&chassis_follow_pid, chassis_cmd_recv.offset_angle, 0.0f);
+        chassis_cmd_recv.wz = -chassis_follow_pid.Output;
         break;
     case CHASSIS_ROTATE: // 自旋,同时保持全向机动;当前wz维持定值,后续增加不规则的变速策略
         chassis_cmd_recv.wz = 6000;

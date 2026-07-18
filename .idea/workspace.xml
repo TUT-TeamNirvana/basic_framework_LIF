@@ -31,9 +31,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，把改完的视觉下位机解算移植过来">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，底盘跟随改成pid形式">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/chassis/chassis.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/chassis/chassis.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +52,8 @@
     <option name="onto" value="258c04cbf450385ca980f1462cae47e0c418a3fa" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock://E:/RMthings/2026届Robomaster/2026赛季步兵/26赛季熊猫代码/basic_framework_LIF_white/application/chassis/chassis.c" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/application/chassis/chassis.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/application/cmd/robot_cmd.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/application/gimbal/gimbal.c" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/application/robot.c" root0="FORCE_HIGHLIGHTING" />
@@ -109,7 +111,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;CPPToolchains&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -298,6 +300,25 @@
       <workItem from="1774580015075" duration="1219000" />
       <workItem from="1774582822766" duration="2096000" />
       <workItem from="1774620870141" duration="970000" />
+      <workItem from="1774678096545" duration="278000" />
+      <workItem from="1775048722564" duration="304000" />
+      <workItem from="1775049043088" duration="2848000" />
+      <workItem from="1775133367510" duration="1808000" />
+      <workItem from="1775199196545" duration="174000" />
+      <workItem from="1775199479395" duration="3976000" />
+      <workItem from="1775477042522" duration="13000" />
+      <workItem from="1775479186591" duration="13000" />
+      <workItem from="1776174206845" duration="195000" />
+      <workItem from="1776174516816" duration="37000" />
+      <workItem from="1776179806464" duration="182000" />
+      <workItem from="1776180705679" duration="40000" />
+      <workItem from="1776586191384" duration="52000" />
+      <workItem from="1779277868741" duration="120000" />
+      <workItem from="1779525584745" duration="52000" />
+      <workItem from="1779573849059" duration="169000" />
+      <workItem from="1783846207420" duration="5000" />
+      <workItem from="1783846243054" duration="5000" />
+      <workItem from="1784386811257" duration="3000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
