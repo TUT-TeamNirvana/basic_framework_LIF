@@ -31,9 +31,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，底盘跟随改成pid形式">
+    <list default="true" id="91b6e91d-48e2-495a-befe-db6457101e9b" name="Changes" comment="2026赛季熊猫，暂未测试不知好坏，事已至此先push吧。修复内容：robot_cmd.c视觉模式添加 raw_yaw_error &gt; 100° 丢弃判断（防止视觉卡尔曼预测飘飞导致 yaw 疯转）；遥控和键鼠限幅 yaw_delta ∈ [-15, 15]，防止输入数值突变。gimbal.c里GimbalTask 的入口，检查 YawTotalAngle 有效性 + Gyro[2] &gt; 1000°/s，防止陀螺仪导致疯车（BMI088 异常时急停电机）">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/chassis/chassis.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/chassis/chassis.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/gimbal/gimbal.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/gimbal/gimbal.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/robot_def.h" beforeDir="false" afterPath="$PROJECT_DIR$/application/robot_def.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/shoot/shoot.c" beforeDir="false" afterPath="$PROJECT_DIR$/application/shoot/shoot.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -318,7 +320,21 @@
       <workItem from="1779573849059" duration="169000" />
       <workItem from="1783846207420" duration="5000" />
       <workItem from="1783846243054" duration="5000" />
-      <workItem from="1784386811257" duration="3000" />
+      <workItem from="1784386811257" duration="2039000" />
+      <workItem from="1784533856276" duration="3000" />
+      <workItem from="1785287526997" duration="27000" />
+      <workItem from="1785290788367" duration="98000" />
+      <workItem from="1785388341018" duration="21000" />
+      <workItem from="1786515099541" duration="287000" />
+      <workItem from="1787039146485" duration="13000" />
+      <workItem from="1787051275125" duration="187000" />
+      <workItem from="1787569579983" duration="17000" />
+      <workItem from="1788340801994" duration="841000" />
+      <workItem from="1788341773061" duration="41000" />
+      <workItem from="1788341852534" duration="5000" />
+      <workItem from="1788343324836" duration="2725000" />
+      <workItem from="1788423948180" duration="70000" />
+      <workItem from="1789554252626" duration="3000" />
     </task>
     <task id="LOCAL-00001" summary="2026赛季熊猫，工具链转为clion+cmake">
       <option name="closed" value="true" />
@@ -504,7 +520,23 @@
       <option name="project" value="LOCAL" />
       <updated>1774544583005</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="2026赛季熊猫，底盘跟随改成pid形式">
+      <option name="closed" value="true" />
+      <created>1784388350359</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1784388350359</updated>
+    </task>
+    <task id="LOCAL-00025" summary="2026赛季熊猫，暂未测试不知好坏，事已至此先push吧。修复内容：robot_cmd.c视觉模式添加 raw_yaw_error &gt; 100° 丢弃判断（防止视觉卡尔曼预测飘飞导致 yaw 疯转）；遥控和键鼠限幅 yaw_delta ∈ [-15, 15]，防止输入数值突变。gimbal.c里GimbalTask 的入口，检查 YawTotalAngle 有效性 + Gyro[2] &gt; 1000°/s，防止陀螺仪导致疯车（BMI088 异常时急停电机）">
+      <option name="closed" value="true" />
+      <created>1784388845035</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1784388845035</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -549,6 +581,8 @@
     <MESSAGE value="2026赛季熊猫，自瞄添加成功，现添加雷达对接接口，修复键鼠操作时自瞄没有自动扳机bug" />
     <MESSAGE value="2026赛季熊猫，添加vt3遥控控制拨弹盘和摩擦轮，并且不影响dt7和键鼠操作" />
     <MESSAGE value="2026赛季熊猫，把改完的视觉下位机解算移植过来" />
-    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，把改完的视觉下位机解算移植过来" />
+    <MESSAGE value="2026赛季熊猫，底盘跟随改成pid形式" />
+    <MESSAGE value="2026赛季熊猫，暂未测试不知好坏，事已至此先push吧。修复内容：robot_cmd.c视觉模式添加 raw_yaw_error &gt; 100° 丢弃判断（防止视觉卡尔曼预测飘飞导致 yaw 疯转）；遥控和键鼠限幅 yaw_delta ∈ [-15, 15]，防止输入数值突变。gimbal.c里GimbalTask 的入口，检查 YawTotalAngle 有效性 + Gyro[2] &gt; 1000°/s，防止陀螺仪导致疯车（BMI088 异常时急停电机）" />
+    <option name="LAST_COMMIT_MESSAGE" value="2026赛季熊猫，暂未测试不知好坏，事已至此先push吧。修复内容：robot_cmd.c视觉模式添加 raw_yaw_error &gt; 100° 丢弃判断（防止视觉卡尔曼预测飘飞导致 yaw 疯转）；遥控和键鼠限幅 yaw_delta ∈ [-15, 15]，防止输入数值突变。gimbal.c里GimbalTask 的入口，检查 YawTotalAngle 有效性 + Gyro[2] &gt; 1000°/s，防止陀螺仪导致疯车（BMI088 异常时急停电机）" />
   </component>
 </project>
